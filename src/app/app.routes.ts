@@ -13,15 +13,16 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'pacientes',
+    loadComponent: () => import('./features/pacientes/pacientes-list.component').then(m => m.PacientesListComponent),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'categorias',
     loadComponent: () => import('./features/categoria/categoria-list/categoria-list.component').then(m => m.CategoriaListComponent),
     canActivate: [AuthGuard]
   },
-  {
-    path: 'productos',
-    loadComponent: () => import('./features/producto/producto-list/producto-list.component').then(m => m.ProductoListComponent),
-    canActivate: [AuthGuard]
-  },
+  
   {
     path: 'usuarios',
     loadComponent: () => import('./features/usuario/usuario-list/usuario-list.component').then(m => m.UsuarioListComponent),
@@ -34,5 +35,9 @@ export const routes: Routes = [
   {
     path: '**',
     redirectTo: '/auth/login'
-  }
+  },
+  
+
+
+
 ];
