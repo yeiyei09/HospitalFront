@@ -1,45 +1,62 @@
-<div class="login-page d-flex align-items-center justify-content-center min-vh-100 bg-light">
-  <div class="card shadow-lg p-4" style="width: 380px; border-radius: 1rem;">
-    <div class="text-center mb-4">
-      <i class="bi bi-hospital text-primary" style="font-size: 3rem;"></i>
-      <h3 class="mt-2 fw-semibold text-primary">Hospital Salud Vida</h3>
-      <p class="text-muted">Inicio de sesión</p>
+<div class="container vh-100 d-flex justify-content-center align-items-center bg-light">
+  <div class="card shadow-lg border-0 overflow-hidden" style="max-width: 900px;">
+    <div class="row g-0">
+      <!-- Imagen lateral -->
+      <div class="col-md-6 d-none d-md-block bg-primary text-white p-5 d-flex flex-column justify-content-center align-items-center">
+        <i class="bi bi-shield-lock display-1 mb-3"></i>
+        <h2 class="fw-bold">Bienvenido de nuevo</h2>
+        <p class="text-white-50 text-start">
+          Ingresa tus credenciales para continuar.
+        </p>
+      </div>
+
+      <!-- Formulario -->
+      <div class="col-md-6 bg-white p-5">
+        <h3 class="text-center mb-4 text-primary fw-bold">Inicio de Sesión</h3>
+
+        <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
+          <div class="mb-3">
+            <label for="usuario" class="form-label">Usuario</label>
+            <input
+              type="text"
+              id="usuario"
+              name="usuario"
+              class="form-control"
+              placeholder="Ingresa tu usuario"
+              [(ngModel)]="loginData.nombre_usuario"
+              required
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="contrasena" class="form-label">Contraseña</label>
+            <input
+              type="password"
+              id="contrasena"
+              name="contrasena"
+              class="form-control"
+              placeholder="********"
+              [(ngModel)]="loginData.contrasena"
+              required
+            />
+          </div>
+
+          <button
+            type="submit"
+            class="btn btn-primary w-100 py-2"
+            [disabled]="loading"
+          >
+            <i class="bi bi-box-arrow-in-right me-2"></i>
+            {{ loading ? 'Iniciando...' : 'Ingresar' }}
+          </button>
+        </form>
+
+        <div class="text-center mt-4">
+          <a href="#" class="text-decoration-none text-secondary small">
+            ¿Olvidaste tu contraseña?
+          </a>
+        </div>
+      </div>
     </div>
-
-    <form (ngSubmit)="onSubmit()" #loginForm="ngForm">
-      <div class="mb-3">
-        <label for="username" class="form-label fw-semibold">Usuario</label>
-        <input
-          type="text"
-          id="username"
-          name="username"
-          class="form-control"
-          placeholder="Ingresa tu usuario"
-          required
-          [(ngModel)]="loginData.nombre_usuario" />
-      </div>
-
-      <div class="mb-3">
-        <label for="password" class="form-label fw-semibold">Contraseña</label>
-        <input
-          type="password"
-          id="password"
-          name="password"
-          class="form-control"
-          placeholder="••••••••"
-          required
-          [(ngModel)]="loginData.contrasena" />
-      </div>
-
-      <div class="d-grid">
-        <button type="submit" class="btn btn-primary btn-lg" [disabled]="!loginForm.valid">
-          Ingresar
-        </button>
-      </div>
-
-      <div class="text-center mt-3">
-        <a href="#" class="text-decoration-none text-secondary">¿Olvidaste tu contraseña?</a>
-      </div>
-    </form>
   </div>
 </div>
