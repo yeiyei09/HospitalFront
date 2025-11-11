@@ -30,6 +30,10 @@ export const ROUTES: RouteInfo[] = [
 })
 export class SidebarComponent implements OnInit {
   menuItems: any[] = [];
+  sidebarOpen = true; // controla visibilidad
+  toggleSidebar(): void {
+    this.sidebarOpen = !this.sidebarOpen;
+  }
 
   constructor(
     public authService: AuthService,

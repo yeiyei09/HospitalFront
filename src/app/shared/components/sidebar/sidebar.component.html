@@ -1,36 +1,50 @@
-<div class="logo">
-    <a href="#" class="simple-text logo-mini">
-      <div class="logo-img">
-          <div class="logo-text">ITM</div>
-      </div>
-    </a>
-    <a href="#" class="simple-text logo-normal">
-        Sistema ITM
-    </a>
-</div>
-<div class="sidebar-wrapper">
-    <ul class="nav">
-        <li routerLinkActive="active" *ngFor="let menuItem of menuItems" class="{{menuItem.class}} nav-item">
-            <a [routerLink]="[menuItem.path]">
-                <i class="now-ui-icons {{menuItem.icon}}"></i>
-                <p>{{menuItem.title}}</p>
-            </a>
-        </li>
-    </ul>
-    
-    <!-- Información del usuario y logout -->
-    <div class="user-info" *ngIf="authService.getCurrentUser()">
-        <div class="user-details">
-            <div class="user-avatar">
-                <i class="now-ui-icons users_single-02"></i>
-            </div>
-            <div class="user-text">
-                <div class="user-name">{{authService.getCurrentUser()?.nombre}}</div>
-                <div class="user-role">{{authService.getCurrentUser()?.es_admin ? 'Administrador' : 'Usuario'}}</div>
-            </div>
-        </div>
-        <button class="logout-btn" (click)="logout()" title="Cerrar Sesión">
-            <i class="now-ui-icons media-1_button-power"></i>
-        </button>
-    </div>
-</div>
+<!-- Botón hamburguesa visible solo en pantallas pequeñas -->
+<button 
+  class="btn btn-primary d-md-none m-3" 
+  type="button"
+  (click)="toggleSidebar()"
+>
+  <i class="bi bi-list fs-3"></i>
+</button>
+<nav 
+  class="sidebar d-flex flex-column flex-shrink-0 p-3 text-white" 
+  [ngClass]="{ 'sidebar-collapsed': !sidebarOpen }"
+>
+  <div class="d-flex align-items-center mb-3">
+    <i class="bi bi-hospital fs-3 me-2"></i>
+    <span class="fs-4 fw-bold">Hospital Salud</span>
+  </div>
+  <hr>
+  <ul class="nav nav-pills flex-column mb-auto">
+    <li class="nav-item">
+      <a routerLink="/dashboard" routerLinkActive="active" class="nav-link text-white">
+        <i class="bi bi-speedometer2 me-2"></i> Dashboard
+      </a>
+    </li>
+    <li>
+      <a routerLink="/pacientes" routerLinkActive="active" class="nav-link text-white">
+        <i class="bi bi-people me-2"></i> Pacientes
+      </a>
+    </li>
+    <li>
+      <a routerLink="/medicos" routerLinkActive="active" class="nav-link text-white">
+        <i class="bi bi-person-badge me-2"></i> Médicos
+      </a>
+    </li>
+    <li>
+      <a routerLink="/citas" routerLinkActive="active" class="nav-link text-white">
+        <i class="bi bi-calendar-check me-2"></i> Citas
+      </a>
+    </li>
+    <li>
+      <a routerLink="/enfermeras" routerLinkActive="active" class="nav-link text-white">
+        <i class="bi bi-heart-pulse me-2"></i> Enfermeras
+      </a>
+    </li>
+  </ul>
+  <hr>
+  <a (click)="logout()" class="d-flex align-items-center text-white text-decoration-none">
+    <i class="bi bi-box-arrow-right me-2"></i>
+    <strong>Salir</strong>
+  </a>
+</nav>
