@@ -18,6 +18,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+    path: 'medicos',
+    loadComponent: () => import('./features/medico/medico-list.component').then(m => m.MedicosListComponent),
+    canActivate: [AuthGuard]
+  },
+  {
     path: 'categorias',
     loadComponent: () => import('./features/categoria/categoria-list/categoria-list.component').then(m => m.CategoriaListComponent),
     canActivate: [AuthGuard]

@@ -52,12 +52,18 @@ export class LoginComponent implements OnInit {
     this.notificationService.showError('Debes ingresar usuario y contraseña.');
     return;
   }
+  this.loginMock();
 
   this.loading = true;
   console.log('Intentando login con:', this.loginData);
 
   // Login demo solo si coincide con admin/admin123
   const isDemo = this.loginData.nombre_usuario === 'admin' && this.loginData.contrasena === 'admin123';
+  if (isDemo && !navigator.onLine) {
+    console.warn('⚠️ Sin conexión o sin backend, iniciando modo DEMO inmediato.');
+    this.loginMock();
+    return;
+  }
 
   this.authService.login(this.loginData).subscribe({
     next: (response) => {
