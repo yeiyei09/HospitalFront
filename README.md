@@ -1232,3 +1232,6 @@ Este proyecto implementa un sistema de gestión moderno utilizando Angular 17 co
 ---
 
 **Desarrollado para el ITM - 2025**
+
+npm install bootstrap
+npm install bootstrap-icons
