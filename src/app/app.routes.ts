@@ -28,6 +28,11 @@ export const routes: Routes = [
     canActivate: [AuthGuard]
   },
   {
+  path: 'enfermeras',
+  loadComponent: () =>
+    import('./features/enfermera/enfermera-list.component').then(m => m.EnfermeraListComponent)
+  },
+  {
     path: 'categorias',
     loadComponent: () => import('./features/categoria/categoria-list/categoria-list.component').then(m => m.CategoriaListComponent),
     canActivate: [AuthGuard]

@@ -1,0 +1,68 @@
+
+<div class="container">
+  <h2>Gestión de Enfermeras</h2>
+
+  <div class="top-bar">
+    <input type="text" placeholder="Buscar por ID o nombre..." [(ngModel)]="searchTerm" />
+    <button class="btn-add" (click)="openModal()">+ Inscribir Enfermera</button>
+  </div>
+
+  <table class="table">
+    <thead>
+      <tr>
+        <th>ID</th>
+        <th>Nombre</th>
+        <th>Correo</th>
+        <th>Teléfono</th>
+        <th>Especialidad</th>
+        <th>Colegiatura</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let enfermera of filteredEnfermeras">
+        <td>{{ enfermera.idEnfermera }}</td>
+        <td>{{ enfermera.nombreEnfermera }}</td>
+        <td>{{ enfermera.correoEnfermera }}</td>
+        <td>{{ enfermera.telefonoEnfermera }}</td>
+        <td>{{ enfermera.especialidad }}</td>
+        <td>{{ enfermera.numeroColegiatura }}</td>
+        <td>
+          <button class="btn-edit" (click)="openModal(enfermera)">✏️</button>
+          <button class="btn-delete" (click)="deleteEnfermera(enfermera.idEnfermera)">🗑️</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
+
+  <!-- MODAL -->
+  <div class="modal" *ngIf="showModal">
+    <div class="modal-content">
+      <h3>{{ editMode ? 'Editar Enfermera' : 'Inscribir Enfermera' }}</h3>
+      <form (ngSubmit)="saveEnfermera()">
+        <label>ID Enfermera:</label>
+        <input type="text" [(ngModel)]="selectedEnfermera.idEnfermera" name="idEnfermera" required [readonly]="editMode" />
+
+        <label>Nombre:</label>
+        <input type="text" [(ngModel)]="selectedEnfermera.nombreEnfermera" name="nombreEnfermera" required />
+
+        <label>Correo:</label>
+        <input type="email" [(ngModel)]="selectedEnfermera.correoEnfermera" name="correoEnfermera" required />
+
+        <label>Teléfono:</label>
+        <input type="text" [(ngModel)]="selectedEnfermera.telefonoEnfermera" name="telefonoEnfermera" required />
+
+        <label>Especialidad:</label>
+        <input type="text" [(ngModel)]="selectedEnfermera.especialidad" name="especialidad" required />
+
+        <label>Número de Colegiatura:</label>
+        <input type="text" [(ngModel)]="selectedEnfermera.numeroColegiatura" name="numeroColegiatura" required />
+
+        <div class="actions">
+          <button type="submit" class="btn-save">Guardar</button>
+          <button type="button" class="btn-cancel" (click)="closeModal()">Cancelar</button>
+        </div>
+      </form>
+    </div>
+  </div>
+</div>
