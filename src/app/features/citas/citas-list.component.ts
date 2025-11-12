@@ -1,8 +1,8 @@
 import { Component, OnInit } from '@angular/core';
-import { CommonModule } from '@angular/common';
-import { FormsModule, NgForm } from '@angular/forms';
-import { CitaService } from '../../core/services/citas.service';
 import { Cita } from '../../core/models/citas.model';
+import { CitaService } from '../../core/services/citas.service';
+import { CommonModule } from '@angular/common';
+import { FormsModule } from '@angular/forms';
 
 @Component({
   selector: 'app-citas-list',
@@ -13,86 +13,59 @@ import { Cita } from '../../core/models/citas.model';
 })
 export class CitasListComponent implements OnInit {
   citas: Cita[] = [];
-  loading = false;
   searchTerm = '';
-
   showModal = false;
-  editing = false;
-  current: Cita = this.emptyCita();
+  editMode = false;
+  selectedCita: Cita = this.getEmptyCita();
 
-  constructor(private service: CitaService) {}
+  constructor(private citaService: CitaService) {}
 
   ngOnInit(): void {
-    this.loadAll();
+    this.citaService.getAll().subscribe(data => (this.citas = data));
   }
 
-  emptyCita(): Cita {
+  get filteredCitas(): Cita[] {
+    return this.citas.filter(c =>
+      c.idCita?.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      c.idPaciente.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      c.idMedico.toLowerCase().includes(this.searchTerm.toLowerCase()) ||
+      c.motivoConsulta.toLowerCase().includes(this.searchTerm.toLowerCase())
+    );
+  }
+
+  openModal(cita?: Cita) {
+    this.showModal = true;
+    this.editMode = !!cita;
+    this.selectedCita = cita ? { ...cita } : this.getEmptyCita();
+  }
+
+  closeModal() {
+    this.showModal = false;
+  }
+
+  saveCita() {
+    if (this.editMode) {
+      this.citaService.update(this.selectedCita);
+    } else {
+      this.citaService.add({ ...this.selectedCita });
+    }
+    this.closeModal();
+  }
+
+  deleteCita(id: string) {
+    if (confirm('¿Seguro que deseas eliminar esta cita?')) {
+      this.citaService.delete(id);
+    }
+  }
+
+  private getEmptyCita(): Cita {
     return {
+      idCita: '',
       idPaciente: '',
       idMedico: '',
       fechaAgendamiento: '',
       motivoConsulta: '',
       fechaEmision: ''
     };
-  }
-
-  loadAll(): void {
-    this.loading = true;
-    this.service.getAll().subscribe(list => {
-      this.citas = list;
-      this.loading = false;
-    });
-  }
-
-  openCreate(): void {
-    this.editing = false;
-    this.current = this.emptyCita();
-    this.showModal = true;
-  }
-
-  openEdit(cita: Cita): void {
-    this.editing = true;
-    this.current = { ...cita };
-    this.showModal = true;
-  }
-
-  save(form: NgForm): void {
-    if (form.invalid) return;
-    this.loading = true;
-
-    if (this.editing && this.current.idCita) {
-      this.service.update(this.current.idCita, this.current).subscribe(() => {
-        this.loadAll();
-        this.showModal = false;
-        this.loading = false;
-      });
-    } else {
-      this.service.create(this.current).subscribe(() => {
-        this.loadAll();
-        this.showModal = false;
-        this.loading = false;
-      });
-    }
-  }
-
-  delete(cita: Cita): void {
-    if (!confirm(`¿Eliminar cita #${cita.idCita}?`)) return;
-    this.service.delete(cita.idCita!).subscribe(() => this.loadAll());
-  }
-
-  doSearch(): void {
-    if (!this.searchTerm) {
-      this.loadAll();
-      return;
-    }
-    this.loading = true;
-    this.service.search(this.searchTerm).subscribe(list => {
-      this.citas = list;
-      this.loading = false;
-    });
-  }
-
-  closeModal(): void {
-    this.showModal = false;
   }
 }

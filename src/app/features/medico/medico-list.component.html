@@ -1,118 +1,124 @@
-<div class="container-fluid">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0" style="color: #1e40af;">Gestión de Medicos</h2>
-    <div>
-      <div class="input-group me-2 d-inline-block" style="max-width:320px;">
-        <input
-          type="text"
-          class="form-control"
-          placeholder="Buscar por id o nombre..."
-          [(ngModel)]="searchTerm"
-          (keyup.enter)="doSearch()"
-        />
-        <button class="btn btn-outline-secondary" (click)="doSearch()">Buscar</button>
-        <button class="btn btn-outline-secondary" (click)="loadAll()" title="Mostrar todos">Reset</button>
-      </div>
+<div class="container mt-4">
+  <h2>Gestión de Médicos</h2>
 
-      <button class="btn btn-primary" (click)="openCreate()">
-        <i class="bi bi-person-plus me-1"></i> Inscribir Medico
-      </button>
-    </div>
+  <div class="top-bar">
+    <input type="text" placeholder="Buscar por ID o nombre..." [(ngModel)]="searchTerm" />
+    <button class="btn-add" (click)="openModal()">Inscribir medico</button>
   </div>
 
-  <div *ngIf="loading" class="text-center my-4">
-    <div class="spinner-border text-primary" role="status"><span class="visually-hidden">Cargando...</span></div>
-  </div>
-
-  <div *ngIf="!loading && medicos.length === 0" class="alert alert-light">
-  No hay médicos registrados.
-  </div>
-
-
-  <div *ngIf="!loading && medicos.length > 0" class="table-responsive">
-    <table class="table table-hover align-middle">
-      <thead class="table-light">
+  <div class="table-responsive">
+    <table class="table table-striped align-middle text-center">
+      <thead>
         <tr>
           <th>ID</th>
           <th>Nombre</th>
           <th>Correo</th>
           <th>Teléfono</th>
           <th>Especialidad</th>
-          <th>Numero de colegiatura</th>
-          <th class="text-end">Acciones</th>
+          <th>N° Colegiatura</th>
+          <th>Acciones</th>
         </tr>
       </thead>
       <tbody>
-        <tr *ngFor="let p of medicos">
-          <td>{{ p.idMedico }}</td>
-          <td>{{ p.nombreMedico }}</td>
-          <td>{{ p.correoMedico }}</td>
-          <td>{{ p.telefonoMedico }}</td>
-          <td>{{ p.especialidad }}</td>
-          <td>{{ p.numeroColegiatura }}</td>
-          <td class="text-end">
-            <button class="btn btn-sm btn-outline-primary me-1" (click)="openEdit(p)">
-              <i class="bi bi-pencil"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-danger" (click)="delete(p)">
-              <i class="bi bi-trash"></i>
-            </button>
+        <tr *ngFor="let medico of filteredMedicos">
+          <td>{{ medico.idMedico }}</td>
+          <td>{{ medico.nombreMedico }}</td>
+          <td>{{ medico.correoMedico }}</td>
+          <td>{{ medico.telefonoMedico }}</td>
+          <td>{{ medico.especialidad }}</td>
+          <td>{{ medico.numeroColegiatura }}</td>
+          <td>
+            <button class="btn btn-sm btn-warning me-2" (click)="openModal(medico)">✏️</button>
+            <button class="btn btn-sm btn-danger" (click)="deleteMedico(medico.idMedico)">🗑️</button>
           </td>
+        </tr>
+        <tr *ngIf="filteredMedicos.length === 0">
+          <td colspan="7" class="text-muted">No se encontraron médicos.</td>
         </tr>
       </tbody>
     </table>
   </div>
-</div>
 
-<!-- Modal (controlado por Angular con *ngIf) -->
-<div class="modal fade show d-block" *ngIf="showModal" tabindex="-1" role="dialog" style="background-color: rgba(0,0,0,0.5);">
-  <div class="modal-dialog modal-dialog-centered" role="document">
-    <div class="modal-content shadow-lg border-0">
-      <div class="modal-header">
-        <h5 class="modal-title">{{ editing ? 'Editar medico' : 'Inscribir medico' }}</h5>
-        <button type="button" class="btn-close" aria-label="Close" (click)="closeModal()"></button>
-      </div>
-
-      <div class="modal-body">
-        <form #medicoForm="ngForm" (ngSubmit)="save(medicoForm)">
-          <div class="mb-2">
-            <label class="form-label">ID</label>
-            <input name="idMedico" [(ngModel)]="current.idMedico" class="form-control" [readonly]="editing" />
-          </div>
-
-          <div class="mb-2">
-            <label class="form-label">Nombre</label>
-            <input name="nombreMedico" [(ngModel)]="current.nombreMedico" class="form-control" required />
-          </div>
-
-          <div class="mb-2 row">
-            <div class="col">
-              <label class="form-label">Correo</label>
-              <input name="correoMedico" [(ngModel)]="current.correoMedico" class="form-control" type="email" />
-            </div>
-            <div class="col">
-              <label class="form-label">Teléfono</label>
-              <input name="telefonoMedico" [(ngModel)]="current.telefonoMedico" class="form-control" />
-            </div>
-          </div>
-
-          <div class="mb-2">
-            <label class="form-label">Especialidad</label>
-<<<<<<< HEAD
-            <input name="especialidad" [(ngModel)]="current.especialidad" class="form-control" />
-=======
-            <input name="Especialidad" [(ngModel)]="current.especialidad" class="form-control" />
->>>>>>> 1112dd10f432b267d42a0641e45a381b15c6ab0b
+  <!-- Modal -->
+  <div class="modal" *ngIf="showModal">
+    <div class="modal-container">
+      <div class="modal-content">
+        <h3> {{ editMode ? 'Editar Médico' : 'Agregar Médico' }}</h3>
+        <form (ngSubmit)="saveMedico()" #form="ngForm">
+          <div class="mb-3">
+            <label for="idMedico" class="form-label">ID Médico</label>
+            <input
+              type="text"
+              id="idMedico"
+              class="form-control"
+              [(ngModel)]="selectedMedico.idMedico"
+              name="idMedico"
+              required
+              [readonly]="editMode"
+            />
           </div>
 
           <div class="mb-3">
-            <label class="form-label">Numero de colegiatura</label>
-            <input name="numeroColegiatura" [(ngModel)]="current.numeroColegiatura" class="form-control" />
+            <label for="nombreMedico" class="form-label">Nombre</label>
+            <input
+              type="text"
+              id="nombreMedico"
+              class="form-control"
+              [(ngModel)]="selectedMedico.nombreMedico"
+              name="nombreMedico"
+              required
+            />
           </div>
 
-          <div class="d-flex justify-content-end">
-            <button type="button" class="btn btn-secondary me-2" (click)="closeModal()">Cancelar</button>
-            <button type="submit" class="btn btn-primary">{{ editing ? 'Guardar' : 'Inscribir' }}</button>
+          <div class="mb-3">
+            <label for="correoMedico" class="form-label">Correo</label>
+            <input
+              type="email"
+              id="correoMedico"
+              class="form-control"
+              [(ngModel)]="selectedMedico.correoMedico"
+              name="correoMedico"
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="telefonoMedico" class="form-label">Teléfono</label>
+            <input
+              type="text"
+              id="telefonoMedico"
+              class="form-control"
+              [(ngModel)]="selectedMedico.telefonoMedico"
+              name="telefonoMedico"
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="especialidad" class="form-label">Especialidad</label>
+            <input
+              type="text"
+              id="especialidad"
+              class="form-control"
+              [(ngModel)]="selectedMedico.especialidad"
+              name="especialidad"
+            />
+          </div>
+
+          <div class="mb-3">
+            <label for="numeroColegiatura" class="form-label">Número de Colegiatura</label>
+            <input
+              type="text"
+              id="numeroColegiatura"
+              class="form-control"
+              [(ngModel)]="selectedMedico.numeroColegiatura"
+              name="numeroColegiatura"
+            />
+          </div>
+
+          <div class="actions">
+            <button type="button" class="btn-cancel" (click)="closeModal()">Cancelar</button>
+            <button type="submit" class="btn btn-success">
+              {{ editMode ? 'Guardar Cambios' : 'Agregar' }}
+            </button>
           </div>
         </form>
       </div>

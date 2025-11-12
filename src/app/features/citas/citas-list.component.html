@@ -1,104 +1,65 @@
-<div class="container-fluid">
-  <div class="d-flex justify-content-between align-items-center mb-3">
-    <h2 class="mb-0" style="color:#1e40af;">Gestión de Citas</h2>
-    <div>
-      <div class="input-group me-2 d-inline-block" style="max-width:320px;">
-        <input type="text" class="form-control" placeholder="Buscar por ID, paciente o médico..."
-               [(ngModel)]="searchTerm" (keyup.enter)="doSearch()" />
-        <button class="btn btn-outline-secondary" (click)="doSearch()">Buscar</button>
-        <button class="btn btn-outline-secondary" (click)="loadAll()" title="Mostrar todos">Reset</button>
-      </div>
-      <button class="btn btn-primary" (click)="openCreate()">
-        <i class="bi bi-calendar-plus me-1"></i> Agendar Cita
-      </button>
-    </div>
+<div class="container mt-4">
+  <h2>Gestión de Citas</h2>
+
+  <div class="top-bar">
+    <input type="text" placeholder="Buscar por ID, paciente o médico..." [(ngModel)]="searchTerm" />
+    <button class="btn-add" (click)="openModal()">Registrar Cita</button>
   </div>
 
-  <div *ngIf="loading" class="text-center my-4">
-    <div class="spinner-border text-primary" role="status"></div>
-  </div>
+  <table class="table table-striped align-middle text-center">
+    <thead>
+      <tr>
+        <th>ID Cita</th>
+        <th>ID Paciente</th>
+        <th>ID Médico</th>
+        <th>Fecha Agendamiento</th>
+        <th>Motivo</th>
+        <th>Fecha Emisión</th>
+        <th>Acciones</th>
+      </tr>
+    </thead>
+    <tbody>
+      <tr *ngFor="let cita of filteredCitas">
+        <td>{{ cita.idCita }}</td>
+        <td>{{ cita.idPaciente }}</td>
+        <td>{{ cita.idMedico }}</td>
+        <td>{{ cita.fechaAgendamiento }}</td>
+        <td>{{ cita.motivoConsulta }}</td>
+        <td>{{ cita.fechaEmision }}</td>
+        <td>
+          <button class="btn btn-sm btn-warning me-2" (click)="openModal(cita)">✏️</button>
+          <button class="btn btn-sm btn-danger" (click)="deleteCita(cita.idCita!)">🗑️</button>
+        </td>
+      </tr>
+    </tbody>
+  </table>
 
-  <div *ngIf="!loading && citas.length === 0" class="alert alert-light">
-    No hay citas registradas.
-  </div>
+  <!-- MODAL -->
+  <div class="modal" *ngIf="showModal">
+    <div class="modal-content">
+      <h3>{{ editMode ? 'Editar Cita' : 'Registrar Cita' }}</h3>
+      <form (ngSubmit)="saveCita()">
+        <label>ID Cita:</label>
+        <input type="text" [(ngModel)]="selectedCita.idCita" name="idCita" required [readonly]="editMode" />
 
-  <div *ngIf="!loading && citas.length > 0" class="table-responsive">
-    <table class="table table-hover align-middle">
-      <thead class="table-light">
-        <tr>
-          <th>ID</th>
-          <th>ID Paciente</th>
-          <th>ID Médico</th>
-          <th>Fecha Agendamiento</th>
-          <th>Motivo Consulta</th>
-          <th>Fecha Emisión</th>
-          <th class="text-end">Acciones</th>
-        </tr>
-      </thead>
-      <tbody>
-        <tr *ngFor="let c of citas">
-          <td>{{ c.idCita }}</td>
-          <td>{{ c.idPaciente }}</td>
-          <td>{{ c.idMedico }}</td>
-          <td>{{ c.fechaAgendamiento | date:'yyyy-MM-dd' }}</td>
-          <td>{{ c.motivoConsulta }}</td>
-          <td>{{ c.fechaEmision | date:'yyyy-MM-dd' }}</td>
-          <td class="text-end">
-            <button class="btn btn-sm btn-outline-primary me-1" (click)="openEdit(c)">
-              <i class="bi bi-pencil"></i>
-            </button>
-            <button class="btn btn-sm btn-outline-danger" (click)="delete(c)">
-              <i class="bi bi-trash"></i>
-            </button>
-          </td>
-        </tr>
-      </tbody>
-    </table>
-  </div>
-</div>
+        <label>ID Paciente:</label>
+        <input type="text" [(ngModel)]="selectedCita.idPaciente" name="idPaciente" required />
 
-<!-- Modal -->
-<div class="modal-backdrop" *ngIf="showModal">
-  <div class="modal-dialog-centered">
-    <div class="modal custom-modal p-4">
-      <div class="d-flex justify-content-between align-items-center mb-3">
-        <h5 class="mb-0">{{ editing ? 'Editar Cita' : 'Agendar Cita' }}</h5>
-        <button class="btn btn-sm btn-outline-secondary" (click)="closeModal()">
-          <i class="bi bi-x-lg"></i>
-        </button>
-      </div>
+        <label>ID Médico:</label>
+        <input type="text" [(ngModel)]="selectedCita.idMedico" name="idMedico" required />
 
-      <form #citaForm="ngForm" (ngSubmit)="save(citaForm)">
-        <div class="mb-2">
-          <label class="form-label">ID Paciente</label>
-          <input name="idPaciente" [(ngModel)]="current.idPaciente" class="form-control" required />
-        </div>
+        <label>Fecha de Agendamiento:</label>
+        <input type="datetime-local" [(ngModel)]="selectedCita.fechaAgendamiento" name="fechaAgendamiento" required />
 
-        <div class="mb-2">
-          <label class="form-label">ID Médico</label>
-          <input name="idMedico" [(ngModel)]="current.idMedico" class="form-control" required />
-        </div>
+        <label>Motivo de la Consulta:</label>
+        <input type="text" [(ngModel)]="selectedCita.motivoConsulta" name="motivoConsulta" required />
 
-        <div class="mb-2">
-          <label class="form-label">Fecha Agendamiento</label>
-          <input name="fechaAgendamiento" [(ngModel)]="current.fechaAgendamiento" class="form-control" type="date" required />
-        </div>
+        <label>Fecha de Emisión:</label>
+        <input type="date" [(ngModel)]="selectedCita.fechaEmision" name="fechaEmision" required />
 
-        <div class="mb-2">
-          <label class="form-label">Motivo de Consulta</label>
-          <input name="motivoConsulta" [(ngModel)]="current.motivoConsulta" class="form-control" required />
-        </div>
-
-        <div class="mb-3">
-          <label class="form-label">Fecha Emisión</label>
-          <input name="fechaEmision" [(ngModel)]="current.fechaEmision" class="form-control" type="date" required />
-        </div>
-
-        <div class="d-flex justify-content-end">
-          <button type="button" class="btn btn-secondary me-2" (click)="closeModal()">Cancelar</button>
-          <button type="submit" class="btn btn-primary">
-            {{ editing ? 'Guardar' : 'Agendar' }}
-          </button>
+        <div class="actions">
+          <button type="button" class="btn-cancel" (click)="closeModal()">Cancelar</button>
+          <button type="submit" class="btn btn-success">Registrar</button>
         </div>
       </form>
     </div>

@@ -1,59 +1,52 @@
 import { Injectable } from '@angular/core';
-import { Observable, of } from 'rxjs';
-import { delay } from 'rxjs/operators';
 import { Cita } from '../models/citas.model';
+import { BehaviorSubject, Observable } from 'rxjs';
 
-@Injectable({ providedIn: 'root' })
+@Injectable({
+  providedIn: 'root'
+})
 export class CitaService {
-  private citas: Cita[] = [
+  private citasData: Cita[] = [
     {
-      idCita: '1',
-      idPaciente: '1',
-      idMedico: '2',
-      fechaAgendamiento: '2025-11-11',
+      idCita: 'C001',
+      idPaciente: 'P001',
+      idMedico: 'M001',
+      fechaAgendamiento: '2025-11-15T10:00',
       motivoConsulta: 'Chequeo general',
       fechaEmision: '2025-11-10'
     },
     {
-      idCita: '2',
-      idPaciente: '3',
-      idMedico: '1',
-      fechaAgendamiento: '2025-11-12',
-      motivoConsulta: 'Dolor de cabeza',
-      fechaEmision: '2025-11-10'
+      idCita: 'C002',
+      idPaciente: 'P002',
+      idMedico: 'M003',
+      fechaAgendamiento: '2025-11-20T14:00',
+      motivoConsulta: 'Dolor de cabeza persistente',
+      fechaEmision: '2025-11-11'
     }
   ];
 
+  private citasSubject = new BehaviorSubject<Cita[]>(this.citasData);
+  citas$: Observable<Cita[]> = this.citasSubject.asObservable();
+
   getAll(): Observable<Cita[]> {
-    return of(this.citas).pipe(delay(300));
+    return this.citas$;
   }
 
-  create(cita: Cita): Observable<void> {
-    cita.idCita = (this.citas.length + 1).toString();
-    this.citas.push(cita);
-    return of(void 0).pipe(delay(300));
+  add(cita: Cita): void {
+    this.citasData.push(cita);
+    this.citasSubject.next([...this.citasData]);
   }
 
-  update(id: string, cita: Cita): Observable<void> {
-    const idx = this.citas.findIndex(c => c.idCita === id);
-    if (idx !== -1) this.citas[idx] = cita;
-    return of(void 0).pipe(delay(300));
+  update(cita: Cita): void {
+    const index = this.citasData.findIndex(c => c.idCita === cita.idCita);
+    if (index !== -1) {
+      this.citasData[index] = cita;
+      this.citasSubject.next([...this.citasData]);
+    }
   }
 
-  delete(id: string): Observable<void> {
-    this.citas = this.citas.filter(c => c.idCita !== id);
-    return of(void 0).pipe(delay(300));
-  }
-
-  search(term: string): Observable<Cita[]> {
-    const t = term.toLowerCase();
-    const filtered = this.citas.filter(
-      c =>
-        c.idCita?.includes(t) ||
-        c.idPaciente.toLowerCase().includes(t) ||
-        c.idMedico.toLowerCase().includes(t) ||
-        c.motivoConsulta.toLowerCase().includes(t)
-    );
-    return of(filtered).pipe(delay(300));
+  delete(id: string): void {
+    this.citasData = this.citasData.filter(c => c.idCita !== id);
+    this.citasSubject.next([...this.citasData]);
   }
 }

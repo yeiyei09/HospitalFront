@@ -1,13 +1,13 @@
 
-<div class="container">
+<div class="container mt-4">
   <h2>Gestión de Enfermeras</h2>
 
   <div class="top-bar">
     <input type="text" placeholder="Buscar por ID o nombre..." [(ngModel)]="searchTerm" />
-    <button class="btn-add" (click)="openModal()">+ Inscribir Enfermera</button>
+    <button class="btn-add" (click)="openModal()">Inscribir Enfermera</button>
   </div>
 
-  <table class="table">
+  <table class="table table-striped align-middle text-center">
     <thead>
       <tr>
         <th>ID</th>
@@ -28,8 +28,8 @@
         <td>{{ enfermera.especialidad }}</td>
         <td>{{ enfermera.numeroColegiatura }}</td>
         <td>
-          <button class="btn-edit" (click)="openModal(enfermera)">✏️</button>
-          <button class="btn-delete" (click)="deleteEnfermera(enfermera.idEnfermera)">🗑️</button>
+          <button class="btn btn-sm btn-warning me-2" (click)="openModal(enfermera)">✏️</button>
+          <button class="btn btn-sm btn-danger" (click)="deleteEnfermera(enfermera.idEnfermera)">🗑️</button>
         </td>
       </tr>
     </tbody>
@@ -59,8 +59,8 @@
         <input type="text" [(ngModel)]="selectedEnfermera.numeroColegiatura" name="numeroColegiatura" required />
 
         <div class="actions">
-          <button type="submit" class="btn-save">Guardar</button>
           <button type="button" class="btn-cancel" (click)="closeModal()">Cancelar</button>
+          <button type="submit" class="btn btn-success">Guardar</button>
         </div>
       </form>
     </div>

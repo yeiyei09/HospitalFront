@@ -1,85 +1,62 @@
 import { Injectable } from '@angular/core';
-import { BehaviorSubject, Observable, of } from 'rxjs';
-import { Patient } from '../models/patient.model';
-import { delay, map } from 'rxjs/operators';
+import { BehaviorSubject, Observable } from 'rxjs';
+import { Paciente } from '../models/paciente.model';
 
 @Injectable({
   providedIn: 'root'
 })
 export class PacienteService {
-  // Datos iniciales de ejemplo
-  private initial: Patient[] = [
+  // Datos mock iniciales
+  private pacientesData: Paciente[] = [
     {
-      idPaciente: '1',
-      nombrePaciente: 'Yef',
-      correoPaciente: 'yef@example.com',
-      telefonoPaciente: '3052232323',
-      direccionPaciente: 'Calle 62A Sur',
-      fechaNacimiento: '2004-12-24'
+      idPaciente: 'P001',
+      nombrePaciente: 'Carlos Pérez',
+      correoPaciente: 'carlos@example.com',
+      telefonoPaciente: '3001234567',
+      direccionPaciente: 'Calle 45 #12-34',
+      fechaNacimiento: '1990-05-10'
     },
     {
-      idPaciente: '2',
-      nombrePaciente: 'María Pérez',
+      idPaciente: 'P002',
+      nombrePaciente: 'María Gómez',
       correoPaciente: 'maria@example.com',
-      telefonoPaciente: '3001112222',
-      direccionPaciente: 'Carrera 10 #5-20',
-      fechaNacimiento: '1985-05-12'
+      telefonoPaciente: '3105678901',
+      direccionPaciente: 'Carrera 8 #23-45',
+      fechaNacimiento: '1985-09-15'
     }
   ];
 
-  private store$ = new BehaviorSubject<Patient[]>([...this.initial]);
+  // BehaviorSubject para manejar cambios reactivos
+  private pacientesSubject = new BehaviorSubject<Paciente[]>(this.pacientesData);
+  pacientes$: Observable<Paciente[]> = this.pacientesSubject.asObservable();
 
-  constructor() {}
-
-  // Simular GET /pacientes
-  getAll(): Observable<Patient[]> {
-    // pequeño delay para simular llamada
-    return this.store$.asObservable().pipe(delay(200));
+  // Obtener todos los pacientes
+  getAll(): Observable<Paciente[]> {
+    return this.pacientes$;
   }
 
-  // Simular GET /pacientes/{id}
-  getById(id: string): Observable<Patient | undefined> {
-    return this.getAll().pipe(
-      map(list => list.find(p => p.idPaciente === id))
-    );
-  }
-
-  // Simular POST /pacientes (crear)
-  create(patient: Patient): Observable<Patient> {
-    const current = this.store$.value;
-    const newPatient = { ...patient };
-    // si no tiene id, generamos uno simple (timestamp)
-    if (!newPatient.idPaciente) {
-      newPatient.idPaciente = String(Date.now());
+  // Agregar un nuevo paciente
+  add(paciente: Paciente): void {
+    // Si no se define un id, se genera automáticamente
+    if (!paciente.idPaciente) {
+      paciente.idPaciente = `P${(this.pacientesData.length + 1).toString().padStart(3, '0')}`;
     }
-    this.store$.next([newPatient, ...current]);
-    return of(newPatient).pipe(delay(200));
+    this.pacientesData.push(paciente);
+    this.pacientesSubject.next([...this.pacientesData]);
   }
 
-  // Simular PUT /pacientes/{id}
-  update(id: string, patient: Patient): Observable<Patient | undefined> {
-    const list = this.store$.value.map(p => (p.idPaciente === id ? { ...patient } : p));
-    this.store$.next(list);
-    const updated = list.find(p => p.idPaciente === id);
-    return of(updated).pipe(delay(200));
+  // Actualizar un paciente existente
+  update(paciente: Paciente): void {
+    const index = this.pacientesData.findIndex(p => p.idPaciente === paciente.idPaciente);
+    if (index !== -1) {
+      this.pacientesData[index] = { ...paciente };
+      this.pacientesSubject.next([...this.pacientesData]);
+    }
   }
 
-  // Simular DELETE /pacientes/{id}
-  delete(id: string): Observable<boolean> {
-    const list = this.store$.value.filter(p => p.idPaciente !== id);
-    this.store$.next(list);
-    return of(true).pipe(delay(150));
-  }
-
-  // Buscar por texto (id o nombre)
-  search(term: string): Observable<Patient[]> {
-    const q = term?.trim().toLowerCase() ?? '';
-    if (!q) return this.getAll();
-    return this.getAll().pipe(
-      map(list => list.filter(p =>
-        p.idPaciente?.toLowerCase().includes(q) ||
-        p.nombrePaciente?.toLowerCase().includes(q)
-      ))
-    );
+  // Eliminar paciente por ID
+  delete(id: string): void {
+    this.pacientesData = this.pacientesData.filter(p => p.idPaciente !== id);
+    this.pacientesSubject.next([...this.pacientesData]);
   }
 }
