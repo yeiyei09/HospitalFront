@@ -1209,17 +1209,17 @@ Este proyecto implementa un sistema de gestión moderno utilizando Angular 17 co
 - **SCSS** para estilos avanzados
 - **RxJS** para programación reactiva
 - **Angular Router** para navegación SPA
+- **Bootstrap 5**
 
 ### Arquitectura del Sistema
 - **Arquitectura Limpia** con separación clara de responsabilidades
 - **Glass Morphism** para efectos visuales modernos
 - **Responsive Design** adaptable a todos los dispositivos
-- **Autenticación Simulada** para demostración
 
 ### Funcionalidades Principales
 - Sistema de autenticación con credenciales de prueba
 - Dashboard principal con navegación
-- Gestión de categorías, productos y usuarios
+- Gestión de pacientes, medicos, enfermeras
 - Formularios con validación
 - Diseño responsive y moderno
 
@@ -1233,5 +1233,14 @@ Este proyecto implementa un sistema de gestión moderno utilizando Angular 17 co
 
 **Desarrollado para el ITM - 2025**
 
-npm install bootstrap
-npm install bootstrap-icons
+### EECUTAR ESTOS COMANDOS PARA EL FUNCIONAMIENTO DEL FRONT
+- npm install bootstrap
+- npm install bootstrap-icons
+- npm install jwt-decode
+
+
+--- 
+### AUTENTICACION
+- Se valida el token, dependiendo del rol del usuario logueado bloquea algunas rutas.
+- Si el token expira, la pagina no redirige al usuario, este deberá loguearse de nuevo para renovar el token.
+- 

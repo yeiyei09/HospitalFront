@@ -67,4 +67,18 @@ export class LoginComponent {
       }
     });
   }
+  ngOnInit(): void {
+    const token = this.authService.getToken();
+
+    if (token) {
+      if (this.authService.isTokenExpired()) {
+        console.warn('El token ha expirado, cerrando sesión...');
+        this.authService.logout();
+      } else {
+        console.log('Token válido, redirigiendo al dashboard...');
+        this.router.navigate(['/dashboard']);
+      }
+    }
+  }
 }
+

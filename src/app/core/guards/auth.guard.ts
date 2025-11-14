@@ -1,36 +1,28 @@
 import { Injectable } from '@angular/core';
-import { ActivatedRouteSnapshot, CanActivate, Router, RouterStateSnapshot } from '@angular/router';
+import { CanActivate, Router, UrlTree } from '@angular/router';
 import { AuthService } from '../services/auth.service';
 
-@Injectable({
-  providedIn: 'root'
-})
+@Injectable({ providedIn: 'root' })
 export class AuthGuard implements CanActivate {
-  constructor(
-    private authService: AuthService,
-    private router: Router
-  ) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
-  canActivate(
-    route: ActivatedRouteSnapshot,
-    state: RouterStateSnapshot
-  ): boolean {
-    // Si no está autenticado, redirigir al login
-    if (!this.authService.isAuthenticated()) {
-      this.router.navigate(['/auth/login']);
-      return false;
+  canActivate(): boolean | UrlTree {
+    const token = this.authService.getToken();
+
+    if (!token) {
+      console.warn('AuthGuard: No hay token — redirigiendo al login.');
+      this.authService.logout();
+      return this.router.parseUrl('/auth/login');
     }
 
-    // Obtener la ruta de destino
-    const targetRoute = route.routeConfig?.path || '';
-    
-    // Verificar si el usuario puede acceder a la ruta
-    if (!this.authService.canAccess(targetRoute)) {
-      // Si no puede acceder, redirigir al dashboard o a una página de error
-      this.router.navigate(['/dashboard']);
-      return false;
+    // Verificar si el token ha expirado
+    if (this.authService.isTokenExpired()) {
+      console.warn('AuthGuard: Token expirado — cerrando sesión y redirigiendo al login.');
+      this.authService.logout();
+      return this.router.parseUrl('/auth/login');
     }
 
+    // Si todo está correcto, permitir acceso
     return true;
   }
 }

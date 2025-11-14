@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { RouterLink, RouterLinkActive } from '@angular/router';
+import { Router, RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 declare interface RouteInfo {
@@ -21,8 +21,8 @@ export const ROUTES: RouteInfo[] = [
 
 @Component({
   selector: 'app-sidebar',
-  standalone: true, // 👈 Indica que es un standalone component
-  imports: [CommonModule, RouterLink, RouterLinkActive], // 👈 importamos las directivas necesarias
+  standalone: true, // Indica que es un standalone component
+  imports: [CommonModule, RouterLink, RouterLinkActive], // importamos las directivas necesarias
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
@@ -30,7 +30,7 @@ export class SidebarComponent implements OnInit {
   sidebarOpen = true;
   menuItems: RouteInfo[] = [];
 
-  constructor(private authService: AuthService) {}
+  constructor(private authService: AuthService, private router: Router) {}
 
   ngOnInit() {
     this.generarMenu();
@@ -52,7 +52,6 @@ export class SidebarComponent implements OnInit {
 
   logout() {
     this.authService.logout();
-    // Si tienes Router disponible, puedes redirigir al login
-    // this.router.navigate(['/auth/login']);
+    this.router.navigate(['/auth/login']); // redirige automáticamente
   }
 }

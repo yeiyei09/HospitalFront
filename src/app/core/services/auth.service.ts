@@ -3,6 +3,7 @@ import { BehaviorSubject, Observable } from 'rxjs';
 import { Usuario } from '../../shared/models/usuario.model';
 import { ApiService } from './api.service';
 import { HttpHeaders } from '@angular/common/http';
+import { jwtDecode } from 'jwt-decode';
 
 export interface LoginRequest {
   username: string;   // coincide con FastAPI (OAuth2PasswordRequestForm)
@@ -149,4 +150,47 @@ export class AuthService {
 
     return accessRules[role]?.includes(route) ?? false;
   }
+
+  /**
+ * Verifica si el token JWT ha expirado
+ */
+isTokenExpired(): boolean {
+  const token = this.getToken();
+  if (!token) return true;
+
+  try {
+    const decoded: any = jwtDecode(token);
+    if (!decoded.exp) return true;
+
+    // 'exp' está en segundos; convertimos a milisegundos
+    const expirationDate = new Date(decoded.exp * 1000);
+    const now = new Date();
+
+    return expirationDate <= now;
+  } catch (error) {
+    console.error('AuthService: Error al decodificar el token', error);
+    return true;
+  }
 }
+
+    /**
+  * Verifica si el correo pertenece a un paciente y existe
+ */
+  sendResetEmail(email: string) {
+  return this.apiService.post('/auth/request-password-reset', { email });
+  }
+
+  /**
+  * Cambia la contraseña del usuario
+  */
+  updatePassword(email: string, newPassword: string): Observable<any> {
+    return this.apiService.post('/auth/reset-password', { email, new_password: newPassword });
+  }
+  confirmPasswordReset(token: string, newPassword: string) {
+  return this.apiService.post('/auth/confirm-password-reset', {
+    token,
+    new_password: newPassword
+  });
+}
+}
+
