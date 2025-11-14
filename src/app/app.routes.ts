@@ -1,6 +1,6 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
-
+import { RoleGuard } from './core/guards/role.guard';
 export const routes: Routes = [
   {
     path: '',
@@ -10,38 +10,33 @@ export const routes: Routes = [
   {
     path: 'dashboard',
     loadComponent: () => import('./features/dashboard/dashboard.component').then(m => m.DashboardComponent),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard],
+    data: { roles: ['admin', 'medico', 'enfermera', 'paciente'] },
   },
   {
     path: 'pacientes',
     loadComponent: () => import('./features/pacientes/pacientes-list.component').then(m => m.PacientesListComponent),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['admin', 'medico', 'enfermera'] },
   },
   {
     path: 'medicos',
     loadComponent: () => import('./features/medico/medico-list.component').then(m => m.MedicosListComponent),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['admin'] },
   },
   {
     path: 'citas',
     loadComponent: () => import('./features/citas/citas-list.component').then(m => m.CitasListComponent),
-    canActivate: [AuthGuard]
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['admin', 'medico'] },
   },
   {
   path: 'enfermeras',
   loadComponent: () =>
-    import('./features/enfermera/enfermera-list.component').then(m => m.EnfermeraListComponent)
-  },
-  {
-    path: 'categorias',
-    loadComponent: () => import('./features/categoria/categoria-list/categoria-list.component').then(m => m.CategoriaListComponent),
-    canActivate: [AuthGuard]
-  },
-  
-  {
-    path: 'usuarios',
-    loadComponent: () => import('./features/usuario/usuario-list/usuario-list.component').then(m => m.UsuarioListComponent),
-    canActivate: [AuthGuard]
+    import('./features/enfermera/enfermera-list.component').then(m => m.EnfermeraListComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['admin'] },
   },
   {
     path: 'auth',

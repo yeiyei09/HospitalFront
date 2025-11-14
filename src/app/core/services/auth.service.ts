@@ -2,30 +2,20 @@ import { Injectable } from '@angular/core';
 import { BehaviorSubject, Observable } from 'rxjs';
 import { Usuario } from '../../shared/models/usuario.model';
 import { ApiService } from './api.service';
+import { HttpHeaders } from '@angular/common/http';
 
 export interface LoginRequest {
-  nombre_usuario: string;
-  contrasena: string;
+  username: string;   // coincide con FastAPI (OAuth2PasswordRequestForm)
+  password: string;
 }
 
 export interface LoginResponse {
-  clave: string;
-  nombre_usuario: Usuario;
+  access_token: string;
+  token_type: string;
+  user: Usuario;
 }
 
-export interface User {
-  id: string;
-  email: string;
-  nombre: string;
-  nombre_usuario: string;
-  telefono?: string;
-  activo: boolean;
-  es_admin: boolean;
-  fecha_creacion: string;
-  fecha_edicion?: string;
-}
-
-export type UserRole = 'admin' | 'consumidor';
+export type UserRole = 'admin' | 'medico' | 'enfermera' | 'paciente' | 'usuario';
 
 @Injectable({
   providedIn: 'root'
@@ -34,8 +24,8 @@ export class AuthService {
   private readonly TOKEN_KEY = 'auth_token';
   private readonly USER_KEY = 'user_data';
   private readonly ROLE_KEY = 'user_role';
-  
-  private currentUserSubject = new BehaviorSubject<User | null>(null);
+
+  private currentUserSubject = new BehaviorSubject<Usuario | null>(null);
   public currentUser$ = this.currentUserSubject.asObservable();
 
   constructor(private apiService: ApiService) {
@@ -43,33 +33,24 @@ export class AuthService {
   }
 
   /**
-   * Inicia sesión del usuario usando el backend real
+   * Inicia sesión en el backend (FastAPI)
    */
   login(credentials: LoginRequest): Observable<LoginResponse> {
-    console.log('AuthService: Intentando login con credenciales:', credentials);
-    return this.apiService.post<LoginResponse>('/auth/login', credentials);
-  }
+  console.log('AuthService: Intentando login con credenciales:', credentials);
 
-  /**
-   * Crea un usuario administrador inicial
-   */
-  crearAdmin(): Observable<any> {
-    return this.apiService.post('/auth/crear-admin', {});
-  }
+  const body = new URLSearchParams();
+  body.set('username', credentials.username);
+  body.set('password', credentials.password);
 
-  /**
-   * Verifica el estado de autenticación
-   */
-  verificarEstado(): Observable<any> {
-    return this.apiService.get('/auth/estado');
-  }
+  // ✅ Formato correcto de encabezado
+  const headers = new HttpHeaders({ 'Content-Type': 'application/x-www-form-urlencoded' });
 
-  /**
-   * Verifica un usuario por ID
-   */
-  verificarUsuario(usuarioId: string): Observable<Usuario> {
-    return this.apiService.get<Usuario>(`/auth/verificar/${usuarioId}`);
-  }
+  return this.apiService.post<LoginResponse>(
+    '/auth/login',
+    body.toString(),
+    { headers }
+  );
+}
 
   /**
    * Cierra sesión del usuario
@@ -79,10 +60,11 @@ export class AuthService {
     localStorage.removeItem(this.USER_KEY);
     localStorage.removeItem(this.ROLE_KEY);
     this.currentUserSubject.next(null);
+    console.log('AuthService: sesión cerrada');
   }
 
   /**
-   * Obtiene el token de autenticación
+   * Obtiene el token JWT almacenado
    */
   getToken(): string | null {
     return localStorage.getItem(this.TOKEN_KEY);
@@ -98,46 +80,49 @@ export class AuthService {
   /**
    * Obtiene el usuario actual
    */
-  getCurrentUser(): User | null {
+  getCurrentUser(): Usuario | null {
     return this.currentUserSubject.value;
   }
 
   /**
-   * Guarda los datos del usuario después del login
+   * Guarda el token y usuario tras login
    */
   setUserData(loginResponse: LoginResponse): void {
-    console.log('AuthService: Guardando datos del usuario:', loginResponse);
-    localStorage.setItem(this.TOKEN_KEY, loginResponse.clave);
-    localStorage.setItem(this.USER_KEY, JSON.stringify(loginResponse.nombre_usuario));
-    localStorage.setItem(this.ROLE_KEY, loginResponse.nombre_usuario.es_admin ? 'admin' : 'consumidor');
-    this.currentUserSubject.next(loginResponse.nombre_usuario);
-    console.log('AuthService: Datos guardados en localStorage');
+    console.log('AuthService: guardando datos del usuario:', loginResponse);
+
+    localStorage.setItem(this.TOKEN_KEY, loginResponse.access_token);
+    localStorage.setItem(this.USER_KEY, JSON.stringify(loginResponse.user));
+    localStorage.setItem(this.ROLE_KEY, loginResponse.user.rol); // ✅ el 'rol' viene del backend
+
+    this.currentUserSubject.next(loginResponse.user);
+
+    console.log('AuthService: datos guardados en localStorage');
     console.log('Token:', localStorage.getItem(this.TOKEN_KEY));
     console.log('Usuario:', localStorage.getItem(this.USER_KEY));
   }
 
   /**
-   * Carga los datos del usuario desde el almacenamiento local
+   * Carga los datos de usuario si existen en localStorage
    */
   private loadUserFromStorage(): void {
     const userData = localStorage.getItem(this.USER_KEY);
     if (userData) {
       try {
-        const user = JSON.parse(userData);
+        const user: Usuario = JSON.parse(userData);
         this.currentUserSubject.next(user);
       } catch (error) {
-        console.error('Error al cargar datos del usuario:', error);
+        console.error('AuthService: error al cargar usuario desde localStorage', error);
         this.logout();
       }
     }
   }
 
   /**
-   * Obtiene el rol del usuario actual
+   * Devuelve el rol actual del usuario
    */
   getUserRole(): UserRole | null {
     const user = this.getCurrentUser();
-    return user?.es_admin ? 'admin' : 'consumidor';
+    return (user?.rol as UserRole) ?? null;
   }
 
   /**
@@ -148,37 +133,20 @@ export class AuthService {
   }
 
   /**
-   * Verifica si el usuario es administrador
-   */
-  isAdmin(): boolean {
-    const user = this.getCurrentUser();
-    return user?.es_admin || false;
-  }
-
-  /**
-   * Verifica si el usuario es consumidor
-   */
-  isConsumidor(): boolean {
-    const user = this.getCurrentUser();
-    return !user?.es_admin;
-  }
-
-  /**
-   * Verifica si el usuario puede acceder a una ruta específica
+   * Comprueba si puede acceder a una sección dada
    */
   canAccess(route: string): boolean {
     const role = this.getUserRole();
-    
     if (!role) return false;
 
-    // Admin puede acceder a todo
-    if (role === 'admin') return true;
+    // Roles y accesos podrían ajustarse según tus vistas
+    const accessRules: { [key in UserRole]?: string[] } = {
+      admin: ['dashboard', 'pacientes', 'medicos', 'citas', 'enfermeras'],
+      medico: ['dashboard', 'pacientes', 'citas'],
+      enfermera: ['dashboard', 'pacientes'],
+      paciente: ['dashboard'],
+    };
 
-    // Consumidor solo puede acceder a productos
-    if (role === 'consumidor') {
-      return route === 'productos' || route === 'dashboard';
-    }
-
-    return false;
+    return accessRules[role]?.includes(route) ?? false;
   }
 }

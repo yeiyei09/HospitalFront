@@ -2,15 +2,14 @@
  * Modelo para la entidad Usuario
  */
 export interface Usuario {
-  id: string; // UUID
-  nombre: string;
-  nombre_usuario: string;
-  email: string;
-  telefono?: string;
-  activo: boolean;
-  es_admin: boolean;
-  fecha_creacion: string;
-  fecha_edicion?: string;
+  id_usuario: string;            
+  username: string;              
+  email: string;                 
+  nombre_completo: string;       
+  rol: string;                   
+  activo: boolean;               
+  fecha_creacion?: string;       
+  fecha_actualizacion?: string;  
 }
 
 /**

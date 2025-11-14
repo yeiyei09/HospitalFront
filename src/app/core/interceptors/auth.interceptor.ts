@@ -1,25 +1,21 @@
-import { HttpInterceptorFn } from '@angular/common/http';
-import { inject } from '@angular/core';
+import { Injectable } from '@angular/core';
+import { HttpInterceptor, HttpRequest, HttpHandler } from '@angular/common/http';
 import { AuthService } from '../services/auth.service';
 
-/**
- * Interceptor para agregar el token de autenticación a las peticiones HTTP
- */
-export const authInterceptor: HttpInterceptorFn = (req, next) => {
-  const authService = inject(AuthService);
-  
-  // Obtener el token del servicio de autenticación
-  const token = authService.getToken();
-  
-  if (token) {
-    // Clonar la petición y agregar el header de autorización
-    const authReq = req.clone({
-      setHeaders: {
-        Authorization: `Bearer ${token}`
-      }
-    });
-    return next(authReq);
+@Injectable()
+export class AuthInterceptor implements HttpInterceptor {
+  constructor(private authService: AuthService) {}
+
+  intercept(req: HttpRequest<any>, next: HttpHandler) {
+    const token = this.authService.getToken();
+
+    if (token) {
+      const cloned = req.clone({
+        setHeaders: { Authorization: `Bearer ${token}` }
+      });
+      return next.handle(cloned);
+    }
+
+    return next.handle(req);
   }
-  
-  return next(req);
-};
+}

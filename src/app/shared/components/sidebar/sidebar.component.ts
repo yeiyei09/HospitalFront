@@ -1,6 +1,6 @@
 import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { Router, RouterModule } from '@angular/router';
+import { RouterLink, RouterLinkActive } from '@angular/router';
 import { AuthService } from '../../../core/services/auth.service';
 
 declare interface RouteInfo {
@@ -12,58 +12,47 @@ declare interface RouteInfo {
 }
 
 export const ROUTES: RouteInfo[] = [
-    { path: '/dashboard', title: 'Dashboard',  icon: 'design_app', class: '' },
-    { path: '/categorias', title: 'Categorías',  icon:'shopping_basket', class: '', roles: ['admin'] },
-    { path: '/usuarios', title: 'Usuarios',  icon:'users_single-02', class: '', roles: ['admin'] },
-    { path: '/productos', title: 'Productos',  icon:'shopping_box', class: '' },
-    { path: '/pruebas', title: 'Pruebas',  icon:'shopping_box', class: '' },
-    { path: '/notifications', title: 'Notificaciones',  icon:'ui-1_bell-53', class: '', roles: ['admin'] },
-    { path: '/upgrade', title: 'Configuración',  icon:'objects_spaceship', class: 'active active-pro', roles: ['admin'] }
+  { path: '/dashboard', title: 'Dashboard', icon: 'bi bi-speedometer2', class: '', roles: ['admin', 'medico', 'enfermera', 'paciente'] },
+  { path: '/pacientes', title: 'Pacientes', icon: 'bi bi-people', class: '', roles: ['admin', 'medico', 'enfermera'] },
+  { path: '/medicos', title: 'Médicos', icon: 'bi bi-person-badge', class: '', roles: ['admin'] },
+  { path: '/citas', title: 'Citas', icon: 'bi bi-calendar-check', class: '', roles: ['admin', 'medico'] },
+  { path: '/enfermeras', title: 'Enfermeras', icon: 'bi bi-heart-pulse', class: '', roles: ['admin'] },
 ];
 
 @Component({
   selector: 'app-sidebar',
-  standalone: true,
-  imports: [CommonModule, RouterModule],
+  standalone: true, // 👈 Indica que es un standalone component
+  imports: [CommonModule, RouterLink, RouterLinkActive], // 👈 importamos las directivas necesarias
   templateUrl: './sidebar.component.html',
   styleUrls: ['./sidebar.component.scss']
 })
 export class SidebarComponent implements OnInit {
-  menuItems: any[] = [];
-  sidebarOpen = true; // controla visibilidad
-  toggleSidebar(): void {
-    this.sidebarOpen = !this.sidebarOpen;
-  }
+  sidebarOpen = true;
+  menuItems: RouteInfo[] = [];
 
-  constructor(
-    public authService: AuthService,
-    private router: Router
-  ) { }
+  constructor(private authService: AuthService) {}
 
   ngOnInit() {
-    this.menuItems = ROUTES.filter(menuItem => this.canAccessMenuItem(menuItem));
+    this.generarMenu();
   }
 
-  canAccessMenuItem(menuItem: RouteInfo): boolean {
-    // Si no tiene roles definidos, todos pueden acceder
-    if (!menuItem.roles || menuItem.roles.length === 0) {
-      return true;
-    }
+  generarMenu() {
+  const role = this.authService.getUserRole();
 
-    // Verificar si el usuario actual tiene alguno de los roles requeridos
-    const userRole = this.authService.getUserRole();
-    return userRole ? menuItem.roles.includes(userRole) : false;
+  if (role) {
+    this.menuItems = ROUTES.filter(route => route.roles?.includes(role) || false);
+  } else {
+    this.menuItems = [];
   }
-  
-  isMobileMenu() {
-      if ( window.innerWidth > 991) {
-          return false;
-      }
-      return true;
+}
+
+  toggleSidebar() {
+    this.sidebarOpen = !this.sidebarOpen;
   }
 
   logout() {
     this.authService.logout();
-    this.router.navigate(['/auth/login']);
+    // Si tienes Router disponible, puedes redirigir al login
+    // this.router.navigate(['/auth/login']);
   }
 }
