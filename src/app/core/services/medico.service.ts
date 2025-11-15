@@ -1,52 +1,46 @@
 import { Injectable } from '@angular/core';
+import { Observable } from 'rxjs';
+import { ApiService } from './api.service';
 import { Medico } from '../models/medico.model';
-import { BehaviorSubject, Observable } from 'rxjs';
 
 @Injectable({
-  providedIn: 'root'
+  providedIn: 'root',
 })
 export class MedicoService {
-  private medicosData: Medico[] = [
-    {
-      idMedico: 'M001',
-      nombreMedico: 'Carlos Pérez',
-      correoMedico: 'carlos.perez@example.com',
-      telefonoMedico: '3009876543',
-      especialidad: 'Cardiología',
-      numeroColegiatura: 'MC-10001'
-    },
-    {
-      idMedico: 'M002',
-      nombreMedico: 'Ana Martínez',
-      correoMedico: 'ana.martinez@example.com',
-      telefonoMedico: '3101234567',
-      especialidad: 'Neurología',
-      numeroColegiatura: 'MC-10002'
-    }
-  ];
+  private readonly endpoint = '/medicos';
 
-  private medicosSubject = new BehaviorSubject<Medico[]>(this.medicosData);
-  medicos$: Observable<Medico[]> = this.medicosSubject.asObservable();
+  constructor(private apiService: ApiService) {}
 
+  /** Obtener todos los médicos */
   getAll(): Observable<Medico[]> {
-    return this.medicos$;
+    return this.apiService.get<Medico[]>(this.endpoint);
   }
 
-  add(medico: Medico): void {
-    this.medicosData.push(medico);
-    this.medicosSubject.next([...this.medicosData]);
+  /** Obtener médicos paginados */
+  getPaginated(page: number, limit: number): Observable<Medico[]> {
+    const skip = (page - 1) * limit;
+    const params = { skip, limit };
+    return this.apiService.get<Medico[]>(this.endpoint, params);
   }
 
-  update(medico: Medico): void {
-    const index = this.medicosData.findIndex(m => m.idMedico === medico.idMedico);
-    if (index !== -1) {
-      this.medicosData[index] = medico;
-      this.medicosSubject.next([...this.medicosData]);
-    }
+  /** Obtener médico por ID */
+  getById(id: string): Observable<Medico> {
+    return this.apiService.get<Medico>(`${this.endpoint}/${id}`);
   }
 
-  delete(id: string): void {
-    this.medicosData = this.medicosData.filter(m => m.idMedico !== id);
-    this.medicosSubject.next([...this.medicosData]);
+  /** Crear nuevo médico */
+  create(medico: Partial<Medico>): Observable<Medico> {
+    const { idMedico, ...body } = medico;
+    return this.apiService.post<Medico>(this.endpoint, body);
+  }
+
+  /** Actualizar médico existente */
+  update(id: string, medico: Partial<Medico>): Observable<Medico> {
+    return this.apiService.put<Medico>(`${this.endpoint}/${id}`, medico);
+  }
+
+  /** Eliminar médico */
+  delete(id: string): Observable<Medico> {
+    return this.apiService.delete<Medico>(`${this.endpoint}/${id}`);
   }
 }

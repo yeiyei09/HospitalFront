@@ -1,8 +1,9 @@
 export interface Medico {
-  idMedico: string;
+  idMedico?: string;
   nombreMedico: string;
-  correoMedico?: string;
+  correoMedico: string;
   telefonoMedico?: string;
-  especialidad?: string;
-  numeroColegiatura?: string; 
+  cedulaMedico?: string;
+  especializacion?: string;
+  numeroColegiatura?: string;
 }
