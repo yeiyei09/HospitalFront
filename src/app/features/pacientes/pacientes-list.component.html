@@ -2,15 +2,33 @@
   <h2>Gestión de Pacientes</h2>
 
   <div class="top-bar">
-    <input type="text" placeholder="Buscar por ID o nombre..." [(ngModel)]="searchTerm" />
-    <button class="btn-add" (click)="openModal()">Inscribir Paciente</button>
-  </div>
+  <!-- 🔹 Búsqueda local: nombre o cédula -->
+  <input
+    type="text"
+    placeholder="Buscar por nombre o cédula..."
+    [(ngModel)]="searchTerm"
+  />
+  <button class="btn-add" (click)="openModal()">Inscribir Paciente</button>
+</div>
+
+<!-- 🔹 Nueva sección: búsqueda por ID (usa GET del backend) -->
+<div class="search-id-bar">
+  <input
+    type="text"
+    placeholder="Ingrese el ID del paciente..."
+    [(ngModel)]="searchId"
+  />
+
+  <button class="btn-id-search" (click)="buscarPorId()">Buscar por ID</button>
+  <button class="btn-view-all" (click)="verTodos()">Ver todos</button>
+</div>
 
   <table class="table table-striped align-middle text-center">
     <thead>
       <tr>
         <th>ID</th>
         <th>Nombre</th>
+        <th>Cédula</th>
         <th>Correo</th>
         <th>Teléfono</th>
         <th>Dirección</th>
@@ -22,44 +40,100 @@
       <tr *ngFor="let paciente of filteredPacientes">
         <td>{{ paciente.idPaciente }}</td>
         <td>{{ paciente.nombrePaciente }}</td>
+        <td>{{ paciente.cedulaPaciente }}</td>
         <td>{{ paciente.correoPaciente }}</td>
         <td>{{ paciente.telefonoPaciente }}</td>
         <td>{{ paciente.direccionPaciente }}</td>
-        <td>{{ paciente.fechaNacimiento | date:'yyyy-MM-dd' }}</td>
+        <td>{{ paciente.fechaNacimiento | date: 'yyyy-MM-dd' }}</td>
         <td>
           <button class="btn btn-sm btn-warning me-2" (click)="openModal(paciente)">✏️</button>
-          <button class="btn btn-sm btn-danger" *ngIf="paciente.idPaciente" (click)="deletePaciente(paciente.idPaciente)">🗑️</button>
+          <button
+            class="btn btn-sm btn-danger"
+            *ngIf="paciente.idPaciente"
+            (click)="deletePaciente(paciente.idPaciente)">
+            🗑️
+          </button>
         </td>
       </tr>
     </tbody>
   </table>
+  <!-- CONTROLES DE PAGINADO -->
+<nav class="pagination-container" *ngIf="pacientes.length">
+  <ul class="pagination">
+    <li class="page-item" [class.disabled]="currentPage === 1">
+      <button class="page-link" (click)="prevPage()" [disabled]="currentPage === 1">
+        ⬅️ Anterior
+      </button>
+    </li>
+
+    <li class="page-item active">
+      <span class="page-link">Página {{ currentPage }}</span>
+    </li>
+
+    <li class="page-item">
+      <button class="page-link" (click)="nextPage()">
+        Siguiente ➡️
+      </button>
+    </li>
+  </ul>
+</nav>
 
   <!-- MODAL -->
   <div class="modal" *ngIf="showModal">
     <div class="modal-content">
       <h3>{{ editMode ? 'Editar Paciente' : 'Inscribir Paciente' }}</h3>
-      <form (ngSubmit)="savePaciente()">
-        <label>ID Paciente:</label>
-        <input type="text" [(ngModel)]="selectedPaciente.idPaciente" name="idPaciente" required [readonly]="editMode" />
 
-        <label>Nombre:</label>
-        <input type="text" [(ngModel)]="selectedPaciente.nombrePaciente" name="nombrePaciente" required />
+      <form (ngSubmit)="savePaciente()">
+        <label>Nombre completo:</label>
+        <input
+          type="text"
+          [(ngModel)]="selectedPaciente.nombrePaciente"
+          name="nombrePaciente"
+          required />
+
+        <label>Cédula:</label>
+        <input
+          type="text"
+          [(ngModel)]="selectedPaciente.cedulaPaciente"
+          name="cedulaPaciente" />
 
         <label>Correo:</label>
-        <input type="email" [(ngModel)]="selectedPaciente.correoPaciente" name="correoPaciente" required />
+        <input
+          type="email"
+          [(ngModel)]="selectedPaciente.correoPaciente"
+          name="correoPaciente"
+          required />
 
         <label>Teléfono:</label>
-        <input type="text" [(ngModel)]="selectedPaciente.telefonoPaciente" name="telefonoPaciente" required />
+        <input
+          type="text"
+          [(ngModel)]="selectedPaciente.telefonoPaciente"
+          name="telefonoPaciente" />
 
         <label>Dirección:</label>
-        <input type="text" [(ngModel)]="selectedPaciente.direccionPaciente" name="direccionPaciente" required />
+        <input
+          type="text"
+          [(ngModel)]="selectedPaciente.direccionPaciente"
+          name="direccionPaciente" />
 
         <label>Fecha de nacimiento:</label>
-        <input type="date" [(ngModel)]="selectedPaciente.fechaNacimiento" name="fechaNacimiento" required />
+        <input
+          type="date"
+          [(ngModel)]="selectedPaciente.fechaNacimiento"
+          name="fechaNacimiento" />
 
         <div class="actions">
-          <button type="button" class="btn-cancel" (click)="closeModal()">Cancelar</button>
-          <button type="submit" class="btn btn-success">Guardar</button>
+          <button
+            type="button"
+            class="btn-cancel"
+            (click)="closeModal()">
+            Cancelar
+          </button>
+          <button
+            type="submit"
+            class="btn btn-success">
+            Guardar
+          </button>
         </div>
       </form>
     </div>
