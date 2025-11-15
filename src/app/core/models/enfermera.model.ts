@@ -1,8 +1,8 @@
 export interface Enfermera {
-  idEnfermera: string;
+  idEnfermera?: string;
   nombreEnfermera: string;
   correoEnfermera: string;
-  telefonoEnfermera: string;
-  especialidad: string;
-  numeroColegiatura: string;
+  telefonoEnfermera?: string;
+  cedulaEnfermera?: string;
+  areaEnfermera?: string;
 }

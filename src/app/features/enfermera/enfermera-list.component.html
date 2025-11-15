@@ -1,10 +1,21 @@
-
 <div class="container mt-4">
   <h2>Gestión de Enfermeras</h2>
 
   <div class="top-bar">
-    <input type="text" placeholder="Buscar por ID o nombre..." [(ngModel)]="searchTerm" />
+    <input
+      type="text"
+      placeholder="Buscar por nombre o cédula..."
+      [(ngModel)]="searchTerm" />
     <button class="btn-add" (click)="openModal()">Inscribir Enfermera</button>
+  </div>
+
+  <div class="search-id-bar">
+    <input
+      type="text"
+      placeholder="Ingrese el ID de la enfermera..."
+      [(ngModel)]="searchId" />
+    <button class="btn-id-search" (click)="buscarPorId()">Buscar por ID</button>
+    <button class="btn-view-all" (click)="verTodos()">Ver todas</button>
   </div>
 
   <table class="table table-striped align-middle text-center">
@@ -12,10 +23,10 @@
       <tr>
         <th>ID</th>
         <th>Nombre</th>
+        <th>Cédula</th>
         <th>Correo</th>
         <th>Teléfono</th>
-        <th>Especialidad</th>
-        <th>Colegiatura</th>
+        <th>Área</th>
         <th>Acciones</th>
       </tr>
     </thead>
@@ -23,44 +34,57 @@
       <tr *ngFor="let enfermera of filteredEnfermeras">
         <td>{{ enfermera.idEnfermera }}</td>
         <td>{{ enfermera.nombreEnfermera }}</td>
+        <td>{{ enfermera.cedulaEnfermera }}</td>
         <td>{{ enfermera.correoEnfermera }}</td>
         <td>{{ enfermera.telefonoEnfermera }}</td>
-        <td>{{ enfermera.especialidad }}</td>
-        <td>{{ enfermera.numeroColegiatura }}</td>
+        <td>{{ enfermera.areaEnfermera }}</td>
         <td>
           <button class="btn btn-sm btn-warning me-2" (click)="openModal(enfermera)">✏️</button>
           <button class="btn btn-sm btn-danger" (click)="deleteEnfermera(enfermera.idEnfermera)">🗑️</button>
         </td>
       </tr>
+      <tr *ngIf="filteredEnfermeras.length === 0">
+        <td colspan="7" class="text-muted">No se encontraron enfermeras.</td>
+      </tr>
     </tbody>
   </table>
 
-  <!-- MODAL -->
+  <nav class="pagination-container" *ngIf="enfermeras.length">
+    <ul class="pagination">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button class="page-link" (click)="prevPage()" [disabled]="currentPage === 1">
+          ⬅️ Anterior
+        </button>
+      </li>
+
+      <li class="page-item active"><span class="page-link">Página {{ currentPage }}</span></li>
+
+      <li class="page-item"><button class="page-link" (click)="nextPage()">Siguiente ➡️</button></li>
+    </ul>
+  </nav>
+
   <div class="modal" *ngIf="showModal">
     <div class="modal-content">
       <h3>{{ editMode ? 'Editar Enfermera' : 'Inscribir Enfermera' }}</h3>
       <form (ngSubmit)="saveEnfermera()">
-        <label>ID Enfermera:</label>
-        <input type="text" [(ngModel)]="selectedEnfermera.idEnfermera" name="idEnfermera" required [readonly]="editMode" />
-
         <label>Nombre:</label>
         <input type="text" [(ngModel)]="selectedEnfermera.nombreEnfermera" name="nombreEnfermera" required />
+
+        <label>Cédula:</label>
+        <input type="text" [(ngModel)]="selectedEnfermera.cedulaEnfermera" name="cedulaEnfermera" />
 
         <label>Correo:</label>
         <input type="email" [(ngModel)]="selectedEnfermera.correoEnfermera" name="correoEnfermera" required />
 
         <label>Teléfono:</label>
-        <input type="text" [(ngModel)]="selectedEnfermera.telefonoEnfermera" name="telefonoEnfermera" required />
+        <input type="text" [(ngModel)]="selectedEnfermera.telefonoEnfermera" name="telefonoEnfermera" />
 
-        <label>Especialidad:</label>
-        <input type="text" [(ngModel)]="selectedEnfermera.especialidad" name="especialidad" required />
-
-        <label>Número de Colegiatura:</label>
-        <input type="text" [(ngModel)]="selectedEnfermera.numeroColegiatura" name="numeroColegiatura" required />
+        <label>Área:</label>
+        <input type="text" [(ngModel)]="selectedEnfermera.areaEnfermera" name="areaEnfermera" />
 
         <div class="actions">
           <button type="button" class="btn-cancel" (click)="closeModal()">Cancelar</button>
-          <button type="submit" class="btn btn-success">Guardar</button>
+          <button type="submit" class="btn btn-success">{{ editMode ? 'Guardar Cambios' : 'Guardar' }}</button>
         </div>
       </form>
     </div>
