@@ -1,84 +1,87 @@
-import { CommonModule } from '@angular/common';
 import { Component, OnInit } from '@angular/core';
-import { FormBuilder, FormGroup, FormsModule, ReactiveFormsModule, Validators } from '@angular/forms';
-import { PaginationParams } from '../../../core/models/api-response.model';
+import { CommonModule } from '@angular/common';
+import {
+  FormBuilder,
+  FormGroup,
+  FormsModule,
+  ReactiveFormsModule,
+  Validators,
+} from '@angular/forms';
 import { UsuarioService } from '../../../core/services/usuario.service';
-import { CreateUsuarioRequest, UpdateUsuarioRequest, Usuario, UsuarioFilters } from '../../../shared/models/usuario.model';
+import {
+  Usuario,
+  CreateUsuarioRequest,
+  UpdateUsuarioRequest,
+  UsuarioFilters,
+} from '../../../shared/models/usuario.model';
+import { PaginationParams } from '../../../core/models/api-response.model';
 
 @Component({
   selector: 'app-usuario-list',
   standalone: true,
   imports: [CommonModule, FormsModule, ReactiveFormsModule],
   templateUrl: './usuario-list.component.html',
-  styleUrl: './usuario-list.component.scss'
+  styleUrls: ['./usuario-list.component.scss'],
 })
 export class UsuarioListComponent implements OnInit {
   usuarios: Usuario[] = [];
+  filters: UsuarioFilters = {};
+  usuarioForm!: FormGroup;
+
+  showModal = false;
+  editingUsuario: boolean = false;
+  selectedUsuario: Usuario | null = null;
+
   loading = false;
   currentPage = 1;
+  itemsPerPage = 5;
   totalPages = 1;
-  pageSize = 10;
-  
-  filters: UsuarioFilters = {};
-  
-  // Modal properties
-  showModal = false;
-  editingUsuario: Usuario | null = null;
-  usuarioForm: FormGroup;
 
-  constructor(
-    private usuarioService: UsuarioService,
-    private fb: FormBuilder
-  ) {
-    this.usuarioForm = this.fb.group({
-      nombre: ['', [Validators.required, Validators.minLength(2)]],
-      nombre_usuario: ['', [Validators.required, Validators.minLength(3)]],
-      email: ['', [Validators.required, Validators.email]],
-      telefono: [''],
-      contraseña: [''],
-      es_admin: [false]
-    });
-  }
+  constructor(private usuarioService: UsuarioService, private fb: FormBuilder) {}
 
   ngOnInit(): void {
+    this.initForm();
     this.loadUsuarios();
   }
 
+  /** Inicializa el formulario reactivo */
+  private initForm() {
+    this.usuarioForm = this.fb.group({
+      username: ['', [Validators.required, Validators.minLength(3)]],
+      nombre_completo: ['', [Validators.required, Validators.minLength(2)]],
+      email: ['', [Validators.required, Validators.email]],
+      rol: ['usuario', Validators.required],
+      password: [''], // requerido solo al crear
+    });
+  }
+
+  /** Cargar usuarios con paginación y filtros */
   loadUsuarios(): void {
     this.loading = true;
     const pagination: PaginationParams = {
       page: this.currentPage,
-      limit: this.pageSize
+      limit: this.itemsPerPage,
     };
 
     this.usuarioService.getUsuarios(pagination, this.filters).subscribe({
-      next: (usuarios) => {
-        this.usuarios = usuarios;
+      next: (data) => {
+        this.usuarios = data;
+        this.loading = false;
+
+        // Si tu API devuelve total o algo similar, puedes ajustar aquí:
+        this.totalPages =
+          data && data.length === this.itemsPerPage
+            ? this.currentPage + 1
+            : this.currentPage;
+      },
+      error: (err) => {
+        console.error('Error al cargar usuarios', err);
         this.loading = false;
       },
-      error: (error) => {
-        console.error('Error al cargar usuarios:', error);
-        // Si el backend no está disponible, usar datos mock
-        if (error.status === 0 || error.status === undefined) {
-          console.log('Backend no disponible, usando datos mock para usuarios');
-          this.usuarios = [{
-            id: '1',
-            nombre: 'Administrador',
-            nombre_usuario: 'admin',
-            email: 'admin@itm.edu.co',
-            telefono: '',
-            activo: true,
-            es_admin: true,
-            fecha_creacion: new Date().toISOString(),
-            fecha_edicion: new Date().toISOString()
-          }];
-          this.totalPages = 1;
-        }
-        this.loading = false;
-      }
     });
   }
 
+  /** Filtros dinámicos */
   onFilterChange(): void {
     this.currentPage = 1;
     this.loadUsuarios();
@@ -86,133 +89,97 @@ export class UsuarioListComponent implements OnInit {
 
   clearFilters(): void {
     this.filters = {};
-    this.currentPage = 1;
     this.loadUsuarios();
   }
 
-  goToPage(page: number): void {
-    if (page >= 1 && page <= this.totalPages) {
-      this.currentPage = page;
-      this.loadUsuarios();
-    }
-  }
-
+  /** Abrir modal para crear usuario */
   openCreateModal(): void {
-    this.editingUsuario = null;
+    this.editingUsuario = false;
     this.usuarioForm.reset({
-      nombre: '',
-      nombre_usuario: '',
-      email: '',
-      telefono: '',
-      contraseña: '',
-      es_admin: false
+      rol: 'usuario',
     });
     this.showModal = true;
   }
 
+  /** Abrir modal para editar usuario existente */
   editUsuario(usuario: Usuario): void {
-    this.editingUsuario = usuario;
+    this.editingUsuario = true;
+    this.selectedUsuario = usuario;
     this.usuarioForm.patchValue({
-      nombre: usuario.nombre,
-      nombre_usuario: usuario.nombre_usuario,
+      username: usuario.username,
+      nombre_completo: usuario.nombre_completo,
       email: usuario.email,
-      telefono: usuario.telefono || '',
-      contraseña: '',
-      es_admin: usuario.es_admin
+      rol: usuario.rol,
     });
     this.showModal = true;
   }
 
+  /** Cierra el modal */
   closeModal(): void {
     this.showModal = false;
-    this.editingUsuario = null;
     this.usuarioForm.reset();
+    this.selectedUsuario = null;
   }
 
+  /** Guardar usuario (crear o actualizar) */
   saveUsuario(): void {
     if (this.usuarioForm.invalid) {
       this.usuarioForm.markAllAsTouched();
       return;
     }
 
-    if (!this.editingUsuario && !this.usuarioForm.get('contraseña')?.value) {
-      alert('La contraseña es requerida para nuevos usuarios');
-      return;
-    }
-
     const formValue = this.usuarioForm.value;
 
-    if (this.editingUsuario) {
-      // Actualizar usuario existente
+    if (this.editingUsuario && this.selectedUsuario) {
       const updateData: UpdateUsuarioRequest = {
-        nombre: formValue.nombre,
-        nombre_usuario: formValue.nombre_usuario,
+        username: formValue.username,
         email: formValue.email,
-        telefono: formValue.telefono,
-        es_admin: formValue.es_admin
+        nombre_completo: formValue.nombre_completo,
+        rol: formValue.rol,
       };
-      
-      this.usuarioService.updateUsuario(this.editingUsuario.id, updateData).subscribe({
-        next: () => {
-          this.loadUsuarios();
-          this.closeModal();
-        },
-        error: (error) => {
-          console.error('Error al actualizar usuario:', error);
-          alert('Error al actualizar el usuario');
-        }
-      });
+
+      this.usuarioService
+        .updateUsuario(this.selectedUsuario.id_usuario, updateData)
+        .subscribe({
+          next: () => {
+            this.loadUsuarios();
+            this.closeModal();
+          },
+          error: (err) => console.error('Error al actualizar usuario', err),
+        });
     } else {
-      // Crear nuevo usuario
-      const newUsuario: CreateUsuarioRequest = {
-        nombre: formValue.nombre,
-        nombre_usuario: formValue.nombre_usuario,
+      const newUser: CreateUsuarioRequest = {
+        username: formValue.username,
         email: formValue.email,
-        telefono: formValue.telefono,
-        contraseña: formValue.contraseña,
-        password: formValue.contraseña, // Alias for frontend compatibility
-        apellido: formValue.apellido || '', // Add missing field
-        es_admin: formValue.es_admin
+        nombre_completo: formValue.nombre_completo,
+        rol: formValue.rol,
+        password: formValue.password,
       };
-      
-      this.usuarioService.createUsuario(newUsuario).subscribe({
+
+      this.usuarioService.createUsuario(newUser).subscribe({
         next: () => {
           this.loadUsuarios();
           this.closeModal();
         },
-        error: (error) => {
-          console.error('Error al crear usuario:', error);
-          alert('Error al crear el usuario');
-        }
+        error: (err) => console.error('Error al crear usuario', err),
       });
     }
   }
 
+  /** Eliminar usuario */
   deleteUsuario(usuario: Usuario): void {
-    if (confirm(`¿Está seguro de eliminar el usuario "${usuario.email}"?`)) {
-      this.usuarioService.deleteUsuario(usuario.id).subscribe({
-        next: () => {
-          this.loadUsuarios();
-        },
-        error: (error) => {
-          console.error('Error al eliminar usuario:', error);
-          alert('Error al eliminar el usuario');
-        }
+    if (confirm(`¿Seguro que deseas eliminar a ${usuario.username}?`)) {
+      this.usuarioService.deleteUsuario(usuario.id_usuario).subscribe({
+        next: () => this.loadUsuarios(),
+        error: (err) => console.error('Error al eliminar usuario', err),
       });
     }
   }
 
-  desactivarUsuario(usuario: Usuario): void {
-    if (confirm(`¿Está seguro de desactivar el usuario "${usuario.email}"?`)) {
-      this.usuarioService.desactivarUsuario(usuario.id).subscribe({
-        next: () => {
-          this.loadUsuarios();
-        },
-        error: (error) => {
-          console.error('Error al desactivar usuario:', error);
-          alert('Error al desactivar el usuario');
-        }
-      });
-    }
+  /** Paginación */
+  goToPage(page: number): void {
+    if (page <= 0 || page > this.totalPages) return;
+    this.currentPage = page;
+    this.loadUsuarios();
   }
 }

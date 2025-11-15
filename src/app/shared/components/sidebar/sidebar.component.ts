@@ -15,8 +15,9 @@ export const ROUTES: RouteInfo[] = [
   { path: '/dashboard', title: 'Dashboard', icon: 'bi bi-speedometer2', class: '', roles: ['admin', 'medico', 'enfermera', 'paciente'] },
   { path: '/pacientes', title: 'Pacientes', icon: 'bi bi-people', class: '', roles: ['admin', 'medico', 'enfermera'] },
   { path: '/medicos', title: 'Médicos', icon: 'bi bi-person-badge', class: '', roles: ['admin'] },
-  { path: '/citas', title: 'Citas', icon: 'bi bi-calendar-check', class: '', roles: ['admin', 'medico'] },
   { path: '/enfermeras', title: 'Enfermeras', icon: 'bi bi-heart-pulse', class: '', roles: ['admin'] },
+  { path: '/citas', title: 'Citas', icon: 'bi bi-calendar-check', class: '', roles: ['admin', 'medico'] },
+  { path: '/usuarios', title: 'Usuarios', icon: 'bi bi-person-lines-fill', class: '', roles: ['admin'] }
 ];
 
 @Component({

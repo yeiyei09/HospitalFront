@@ -39,6 +39,13 @@ export const routes: Routes = [
     data: { roles: ['admin'] },
   },
   {
+  path: 'usuarios',
+  loadComponent: () =>
+    import('./features/usuario/usuario-list/usuario-list.component').then(m => m.UsuarioListComponent),
+    canActivate: [AuthGuard, RoleGuard],
+    data: { roles: ['admin'] },
+  },
+  {
     path: 'auth',
     loadChildren: () => import('./features/auth/auth.routes').then(m => m.authRoutes)
   },

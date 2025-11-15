@@ -1,58 +1,43 @@
-/**
- * Modelo para la entidad Usuario
- */
+// Usuario completo que viene del backend
 export interface Usuario {
-  id_usuario: string;            
-  username: string;              
-  email: string;                 
-  nombre_completo: string;       
-  rol: string;                   
-  activo: boolean;               
-  fecha_creacion?: string;       
-  fecha_actualizacion?: string;  
-}
-
-/**
- * Modelo para crear un nuevo usuario
- */
-export interface CreateUsuarioRequest {
-  nombre: string;
-  nombre_usuario: string;
+  id_usuario: string;
+  username: string;
   email: string;
-  contraseña: string;
-  telefono?: string;
-  es_admin?: boolean;
-  password: string; // Alias for contraseña for frontend compatibility
-  apellido: string; // Additional field for frontend
+  nombre_completo: string;
+  rol: string;
+  activo: boolean;
+  fecha_creacion?: string;
+  fecha_actualizacion?: string;
 }
 
-/**
- * Modelo para actualizar un usuario
- */
+// Para registrar un nuevo usuario
+export interface CreateUsuarioRequest {
+  username: string;
+  email: string;
+  nombre_completo: string;
+  rol: string;
+  password: string;
+}
+
+// Para actualizar un usuario
 export interface UpdateUsuarioRequest {
-  nombre?: string;
-  nombre_usuario?: string;
+  username?: string;
   email?: string;
-  telefono?: string;
-  es_admin?: boolean;
+  nombre_completo?: string;
+  rol?: string;
   activo?: boolean;
 }
 
-/**
- * Modelo para cambiar contraseña
- */
+// Para cambiar contraseña
 export interface ChangePasswordRequest {
-  contraseña_actual: string;
-  nueva_contraseña: string;
+  password: string;
 }
 
-/**
- * Modelo para filtros de usuarios
- */
+// Filtros y paginación opcionales
 export interface UsuarioFilters {
+  username?: string;
   email?: string;
-  nombre?: string;
-  nombre_usuario?: string;
+  nombre_completo?: string;
+  rol?: string;
   activo?: boolean;
-  es_admin?: boolean;
 }
