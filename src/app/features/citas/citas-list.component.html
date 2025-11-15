@@ -2,17 +2,23 @@
   <h2>Gestión de Citas</h2>
 
   <div class="top-bar">
-    <input type="text" placeholder="Buscar por ID, paciente o médico..." [(ngModel)]="searchTerm" />
+    <input type="text" placeholder="Buscar por motivo o ID paciente..." [(ngModel)]="searchTerm" />
     <button class="btn-add" (click)="openModal()">Registrar Cita</button>
+  </div>
+
+  <div class="search-id-bar">
+    <input type="text" placeholder="Ingrese el ID de la cita..." [(ngModel)]="searchId" />
+    <button class="btn-id-search" (click)="buscarPorId()">Buscar por ID</button>
+    <button class="btn-view-all" (click)="verTodas()">Ver todas</button>
   </div>
 
   <table class="table table-striped align-middle text-center">
     <thead>
       <tr>
-        <th>ID Cita</th>
+        <th>ID</th>
         <th>ID Paciente</th>
         <th>ID Médico</th>
-        <th>Fecha Agendamiento</th>
+        <th>Fecha Agendada</th>
         <th>Motivo</th>
         <th>Fecha Emisión</th>
         <th>Acciones</th>
@@ -23,43 +29,53 @@
         <td>{{ cita.idCita }}</td>
         <td>{{ cita.idPaciente }}</td>
         <td>{{ cita.idMedico }}</td>
-        <td>{{ cita.fechaAgendamiento }}</td>
+        <td>{{ cita.fechaAgendamiento | date:'yyyy-MM-dd HH:mm' }}</td>
         <td>{{ cita.motivoConsulta }}</td>
-        <td>{{ cita.fechaEmision }}</td>
+        <td>{{ cita.fechaEmision | date:'yyyy-MM-dd' }}</td>
         <td>
           <button class="btn btn-sm btn-warning me-2" (click)="openModal(cita)">✏️</button>
           <button class="btn btn-sm btn-danger" (click)="deleteCita(cita.idCita!)">🗑️</button>
         </td>
       </tr>
+      <tr *ngIf="filteredCitas.length === 0">
+        <td colspan="7" class="text-muted">No se encontraron citas.</td>
+      </tr>
     </tbody>
   </table>
 
-  <!-- MODAL -->
+  <nav class="pagination-container" *ngIf="citas.length">
+    <ul class="pagination">
+      <li class="page-item" [class.disabled]="currentPage === 1">
+        <button class="page-link" (click)="prevPage()" [disabled]="currentPage === 1">⬅️ Anterior</button>
+      </li>
+      <li class="page-item active"><span class="page-link">Página {{ currentPage }}</span></li>
+      <li class="page-item"><button class="page-link" (click)="nextPage()">Siguiente ➡️</button></li>
+    </ul>
+  </nav>
+
   <div class="modal" *ngIf="showModal">
     <div class="modal-content">
       <h3>{{ editMode ? 'Editar Cita' : 'Registrar Cita' }}</h3>
-      <form (ngSubmit)="saveCita()">
-        <label>ID Cita:</label>
-        <input type="text" [(ngModel)]="selectedCita.idCita" name="idCita" required [readonly]="editMode" />
 
+      <form (ngSubmit)="saveCita()">
         <label>ID Paciente:</label>
         <input type="text" [(ngModel)]="selectedCita.idPaciente" name="idPaciente" required />
 
         <label>ID Médico:</label>
         <input type="text" [(ngModel)]="selectedCita.idMedico" name="idMedico" required />
 
-        <label>Fecha de Agendamiento:</label>
-        <input type="datetime-local" [(ngModel)]="selectedCita.fechaAgendamiento" name="fechaAgendamiento" required />
+        <label>Fecha de Agendamiento:</label>
+        <input type="date" [(ngModel)]="selectedCita.fechaAgendamiento" name="fechaAgendamiento" required />
 
-        <label>Motivo de la Consulta:</label>
+        <label>Motivo de la Consulta:</label>
         <input type="text" [(ngModel)]="selectedCita.motivoConsulta" name="motivoConsulta" required />
 
-        <label>Fecha de Emisión:</label>
-        <input type="date" [(ngModel)]="selectedCita.fechaEmision" name="fechaEmision" required />
+        <label>Fecha de Emisión:</label>
+        <input type="datetime-local" [(ngModel)]="selectedCita.fechaEmision" name="fechaEmision" required />
 
         <div class="actions">
           <button type="button" class="btn-cancel" (click)="closeModal()">Cancelar</button>
-          <button type="submit" class="btn btn-success">Registrar</button>
+          <button type="submit" class="btn btn-success">{{ editMode ? 'Guardar Cambios' : 'Registrar' }}</button>
         </div>
       </form>
     </div>
