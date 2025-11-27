@@ -1,0 +1,70 @@
+<div class="dashboard-container p-4">
+  <div class="text-center mb-4">
+    <h2 class="fw-bold text-primary">
+      Panel de control del Sistema Hospitalario
+    </h2>
+    <p class="text-muted">Resumen general de la gestión médica</p>
+  </div>
+
+  <!-- Loader -->
+  <div class="text-center" *ngIf="loading">
+    <div class="spinner-border text-primary" role="status"></div>
+    <p>Cargando estadísticas...</p>
+  </div>
+
+  <!-- Error -->
+  <div *ngIf="error" class="alert alert-danger text-center">
+    {{ error }}
+  </div>
+
+  <!-- Tarjetas -->
+  <div class="row g-4" *ngIf="!loading && !error">
+    <div class="col-md-3 col-sm-6">
+      <div class="stat-card bg-light shadow-sm border-start border-primary border-4 rounded p-3 h-100">
+        <div class="d-flex align-items-center">
+          <i class="bi bi-people fs-2 text-primary me-3"></i>
+          <div>
+            <h5 class="mb-0 text-secondary">Pacientes</h5>
+            <h2 class="fw-bold">{{ totalPacientes }}</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+      <div class="stat-card bg-light shadow-sm border-start border-success border-4 rounded p-3 h-100">
+        <div class="d-flex align-items-center">
+          <i class="bi bi-person-badge fs-2 text-success me-3"></i>
+          <div>
+            <h5 class="mb-0 text-secondary">Médicos</h5>
+            <h2 class="fw-bold">{{ totalMedicos }}</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+      <div class="stat-card bg-light shadow-sm border-start border-danger border-4 rounded p-3 h-100">
+        <div class="d-flex align-items-center">
+          <i class="bi bi-heart-pulse fs-2 text-danger me-3"></i>
+          <div>
+            <h5 class="mb-0 text-secondary">Enfermeras</h5>
+            <h2 class="fw-bold">{{ totalEnfermeras }}</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+
+    <div class="col-md-3 col-sm-6">
+      <div class="stat-card bg-light shadow-sm border-start border-warning border-4 rounded p-3 h-100">
+        <div class="d-flex align-items-center">
+          <i class="bi bi-calendar-check fs-2 text-warning me-3"></i>
+          <div>
+            <h5 class="mb-0 text-secondary">Citas</h5>
+            <h2 class="fw-bold">{{ totalCitas }}</h2>
+          </div>
+        </div>
+      </div>
+    </div>
+  </div>
+</div>

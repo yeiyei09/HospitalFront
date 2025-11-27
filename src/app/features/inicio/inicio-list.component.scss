@@ -1,0 +1,22 @@
+.inicio-container {
+  min-height: 80vh;
+  display: flex;
+  align-items: center;
+  justify-content: center;
+  background: linear-gradient(to right, #e3f2fd, #f8f9fa);
+}
+
+.welcome-card {
+  max-width: 800px;
+  transition: all 0.3s ease-in-out;
+
+  &:hover {
+    transform: scale(1.01);
+    box-shadow: 0 10px 25px rgba(0, 0, 0, 0.1);
+  }
+}
+
+.tips li {
+  font-size: 1.05rem;
+  margin-bottom: 8px;
+}

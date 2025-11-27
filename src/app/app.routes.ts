@@ -1,11 +1,17 @@
 import { Routes } from '@angular/router';
 import { AuthGuard } from './core/guards/auth.guard';
 import { RoleGuard } from './core/guards/role.guard';
+import { InicioComponent } from './features/inicio/inicio-list.component';
 export const routes: Routes = [
   {
     path: '',
     redirectTo: '/auth/login',
     pathMatch: 'full'
+  },
+  { 
+    path: 'inicio', component: InicioComponent,
+    canActivate: [AuthGuard],
+    data: { roles: ['admin', 'medico', 'enfermera', 'paciente'] }, 
   },
   {
     path: 'dashboard',

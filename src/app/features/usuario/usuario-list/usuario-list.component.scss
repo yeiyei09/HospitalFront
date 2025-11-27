@@ -1,139 +1,238 @@
-.badge {
-  padding: 0.25rem 0.5rem;
-  border-radius: 0.25rem;
-  font-size: 0.75rem;
+.container {
+  padding: 20px;
 }
 
-.badge-success {
-  background-color: #28a745;
-  color: white;
+h2 {
+  margin-bottom: 20px;
 }
 
-.badge-danger {
-  background-color: #dc3545;
-  color: white;
-}
-
-.table-responsive {
-  overflow-x: auto;
-}
-
-.pagination {
+/* 🔹 Barra superior: búsqueda principal + botón */
+.top-bar {
   display: flex;
-  justify-content: center;
+  justify-content: space-between;
   align-items: center;
+  margin-bottom: 15px;
+
+  input {
+    width: 60%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .btn-add {
+    background-color: #007bff;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: all 0.3s ease;
+
+    &:hover {
+      background-color: #0056b3;
+    }
+  }
 }
 
-// Modal styles
+/* 🔹 Segunda barra: buscar por ID */
+.search-id-bar {
+  display: flex;
+  align-items: center;
+  gap: 10px;
+  margin-bottom: 20px;
+
+  input {
+    width: 40%;
+    padding: 8px;
+    border: 1px solid #ccc;
+    border-radius: 4px;
+  }
+
+  .btn-id-search {
+    background-color: #17a2b8;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #138496;
+    }
+  }
+
+  .btn-view-all {
+    background-color: #28a745;
+    color: #fff;
+    border: none;
+    padding: 8px 12px;
+    border-radius: 6px;
+    cursor: pointer;
+    transition: background-color 0.3s ease;
+
+    &:hover {
+      background-color: #218838;
+    }
+  }
+}
+
+/* 🔹 Tabla */
+.table {
+  width: 100%;
+  border-collapse: collapse;
+  background: #fff;
+  box-shadow: 0 2px 4px rgba(0, 0, 0, 0.1);
+
+  th,
+  td {
+    padding: 10px;
+    border-bottom: 1px solid #ddd;
+    text-align: center;
+  }
+
+  th {
+    background-color: #f5f5f5;
+  }
+
+  .btn-edit,
+  .btn-delete {
+    border: none;
+    cursor: pointer;
+    background: none;
+    font-size: 18px;
+  }
+
+  .btn-delete {
+    color: red;
+    transition: color 0.2s ease;
+
+    &:hover {
+      color: #b30000;
+    }
+  }
+}
+
+/* 🔹 Modal */
 .modal {
   position: fixed;
   top: 0;
   left: 0;
   width: 100%;
   height: 100%;
-  background-color: rgba(0, 0, 0, 0.5);
-  z-index: 1050;
-  display: none;
-}
-
-.modal.show {
-  display: block !important;
-}
-
-.modal-dialog {
-  position: relative;
-  max-width: 500px;
-  margin: 1.75rem auto;
-  transform: translateY(-50%);
-  top: 50%;
+  background: rgba(0, 0, 0, 0.5);
+  display: flex;
+  justify-content: center;
+  align-items: center;
+  z-index: 1000;
 }
 
 .modal-content {
-  border: none;
-  border-radius: 0.5rem;
-  box-shadow: 0 10px 25px rgba(0, 0, 0, 0.2);
-  background-color: white;
+  background: white;
+  padding: 20px;
+  border-radius: 8px;
+  width: 400px;
+
+  h3 {
+    margin-bottom: 15px;
+    text-align: center;
+  }
+
+  form {
+    display: flex;
+    flex-direction: column;
+
+    label {
+      margin-top: 10px;
+      font-weight: 500;
+    }
+
+    input {
+      padding: 6px;
+      margin-top: 4px;
+      border-radius: 4px;
+      border: 1px solid #ccc;
+    }
+
+    .actions {
+      display: flex;
+      justify-content: space-between;
+      margin-top: 20px;
+
+      .btn-cancel {
+        background-color: #dc3545;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: #a71d2a;
+        }
+      }
+
+      .btn-success {
+        background-color: #28a745;
+        color: white;
+        border: none;
+        padding: 8px 12px;
+        border-radius: 6px;
+        cursor: pointer;
+        transition: background-color 0.3s ease;
+
+        &:hover {
+          background-color: #1e7e34;
+        }
+      }
+    }
+  }
 }
 
-.modal-header {
-  border-bottom: 1px solid #e9ecef;
-  padding: 1rem 1.5rem;
-}
-
-.modal-title {
-  margin: 0;
-  font-size: 1.25rem;
-  font-weight: 600;
-}
-
-.close {
-  background: none;
-  border: none;
-  font-size: 1.5rem;
-  font-weight: 700;
-  line-height: 1;
-  color: #000;
-  opacity: 0.5;
-  cursor: pointer;
-}
-
-.close:hover {
-  opacity: 0.75;
-}
-
-.modal-body {
-  padding: 1.5rem;
-}
-
-.modal-footer {
-  border-top: 1px solid #e9ecef;
-  padding: 1rem 1.5rem;
+/* 🔹 Paginado visual */
+.pagination-container {
   display: flex;
-  justify-content: flex-end;
-  gap: 0.5rem;
+  justify-content: center;
+  margin-top: 20px;
 }
 
-.form-group {
-  margin-bottom: 1rem;
-}
-
-.form-group label {
-  display: block;
-  margin-bottom: 0.5rem;
-  font-weight: 500;
-  color: #495057;
-}
-
-.form-control {
-  display: block;
-  width: 100%;
-  padding: 0.375rem 0.75rem;
-  font-size: 1rem;
-  line-height: 1.5;
-  color: #495057;
-  background-color: #fff;
-  border: 1px solid #ced4da;
+.pagination {
+  display: flex;
+  list-style: none;
+  padding-left: 0;
   border-radius: 0.25rem;
-  transition: border-color 0.15s ease-in-out, box-shadow 0.15s ease-in-out;
-}
 
-.form-control:focus {
-  border-color: #80bdff;
-  outline: 0;
-  box-shadow: 0 0 0 0.2rem rgba(0, 123, 255, 0.25);
-}
+  .page-item {
+    margin: 0 3px;
 
-.form-check {
-  display: flex;
-  align-items: center;
-  margin-bottom: 0;
-}
+    &.disabled .page-link {
+      background-color: #e9ecef;
+      color: #6c757d;
+      pointer-events: none;
+    }
 
-.form-check-input {
-  margin-right: 0.5rem;
-}
+    &.active .page-link {
+      background-color: #007bff;
+      color: #fff;
+      font-weight: 500;
+      border-color: #007bff;
+    }
 
-.form-check-label {
-  margin-bottom: 0;
-  font-weight: normal;
+    .page-link {
+      border: 1px solid #dee2e6;
+      color: #007bff;
+      padding: 6px 12px;
+      border-radius: 6px;
+      background-color: #fff;
+      cursor: pointer;
+      transition: all 0.3s ease;
+
+      &:hover {
+        background-color: #007bff;
+        color: #fff;
+      }
+    }
+  }
 }

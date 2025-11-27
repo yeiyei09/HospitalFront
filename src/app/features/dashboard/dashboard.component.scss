@@ -1,0 +1,18 @@
+.dashboard-container {
+  min-height: 85vh;
+  background: #f8f9fa;
+}
+
+.stat-card {
+  transition: all 0.3s ease-in-out;
+  cursor: pointer;
+
+  &:hover {
+    transform: translateY(-5px);
+    box-shadow: 0 6px 18px rgba(0, 0, 0, 0.1);
+  }
+
+  i {
+    opacity: 0.8;
+  }
+}

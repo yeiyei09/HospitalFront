@@ -12,7 +12,8 @@ declare interface RouteInfo {
 }
 
 export const ROUTES: RouteInfo[] = [
-  { path: '/dashboard', title: 'Dashboard', icon: 'bi bi-speedometer2', class: '', roles: ['admin', 'medico', 'enfermera', 'paciente'] },
+  { path: '/inicio', title: 'Inicio', icon: 'bi bi-house-door', class: '', roles: ['admin', 'medico', 'enfermera', 'paciente'] },
+  { path: '/dashboard', title: 'Dashboard', icon: 'bi bi-speedometer2', class: '', roles: ['admin'] },
   { path: '/pacientes', title: 'Pacientes', icon: 'bi bi-people', class: '', roles: ['admin', 'medico', 'enfermera'] },
   { path: '/medicos', title: 'Médicos', icon: 'bi bi-person-badge', class: '', roles: ['admin'] },
   { path: '/enfermeras', title: 'Enfermeras', icon: 'bi bi-heart-pulse', class: '', roles: ['admin'] },
